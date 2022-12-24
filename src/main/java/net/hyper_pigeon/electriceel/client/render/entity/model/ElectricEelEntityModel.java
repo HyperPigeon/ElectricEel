@@ -133,44 +133,8 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         this.tickDelta = tickDelta;
     }
 
-//    public float getHeadYaw(ElectricEelEntity entity){
-//        Vec3d vec3d = entity.getCameraPosVec(tickDelta);
-//        Vec3d vec3d2 = entity.getRotationVec(tickDelta);
-//        Vec3d vec3d3 = vec3d.add(vec3d2.x * 1, vec3d2.y * 1, vec3d2.z * 1);
-//        vec3d3 = vec3d3.normalize();
-//        float yaw = (float) Math.atan2(vec3d3.x,vec3d3.z);
-//        return yaw;
-//    }
-
-//    public void printOutInfo(ElectricEelEntity entity){
-//        Vec3d vec3d = new Vec3d(entity.getX()-entity.getMoveControl().getTargetX(), entity.getY()-entity.getMoveControl().getTargetY(),
-//                entity.getZ()-entity.getMoveControl().getTargetZ());
-//        vec3d = vec3d.normalize();
-//        float yaw = (float) Math.atan2(vec3d.x,vec3d.z);
-//        System.out.println("yaw1 = " + yaw);
-//        System.out.println(entity.getYaw());
-//    }
-
-    public float getEelYaw(ElectricEelEntity entity) {
-        Vec3d vec3d = new Vec3d(entity.getX()-entity.getMoveControl().getTargetX(), entity.getY()-entity.getMoveControl().getTargetY(),
-                entity.getZ()-entity.getMoveControl().getTargetZ());
-        vec3d = vec3d.normalize();
-        float yaw = (float) Math.atan2(vec3d.x,vec3d.z);
-        return -1*yaw;
-    }
-
-
-
-
     @Override
     public void setAngles(ElectricEelEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-
-        //System.out.println(headYaw);
-        if(headYaw != 0.0){
-            System.out.println("not zero");
-            System.out.println("yaw: " + headYaw);
-            System.out.println("pitch: " + headPitch);
-        }
 
         this.head.previousPitch = this.head.currentPitch;
         this.head.previousYaw = this.head.currentYaw;
