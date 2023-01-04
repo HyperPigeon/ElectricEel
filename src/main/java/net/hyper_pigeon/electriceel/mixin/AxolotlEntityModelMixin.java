@@ -12,9 +12,12 @@ public abstract class AxolotlEntityModelMixin {
 
     @Inject(method = "setAngles(Lnet/minecraft/entity/passive/AxolotlEntity;FFFFF)V", at = @At("HEAD"))
     public void printHeadYaw(AxolotlEntity axolotlEntity, float f, float g, float h, float i, float j, CallbackInfo ci){
-//        if(i != 0.0){
-//            System.out.println("not zero");
-//        }
+        if(i != 0.0){
+            System.out.println(i);
+        }
+        else {
+            System.out.println("zero");
+        }
     }
 
 }

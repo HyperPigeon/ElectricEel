@@ -133,6 +133,17 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         this.tickDelta = tickDelta;
     }
 
+    public float getEelYaw(ElectricEelEntity entity) {
+        Vec3d vec3d = new Vec3d(entity.getX()-entity.getMoveControl().getTargetX(), entity.getY()-entity.getMoveControl().getTargetY(),
+                entity.getZ()-entity.getMoveControl().getTargetZ());
+        vec3d = vec3d.normalize();
+        float yaw = (float) Math.atan2(vec3d.x,vec3d.z);
+        return -1*yaw;
+    }
+
+
+
+
     @Override
     public void setAngles(ElectricEelEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 

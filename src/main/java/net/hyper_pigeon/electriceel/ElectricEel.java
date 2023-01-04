@@ -1,7 +1,6 @@
 package net.hyper_pigeon.electriceel;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.hyper_pigeon.electriceel.entity.ElectricEelEntity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -17,7 +16,7 @@ public class ElectricEel implements ModInitializer {
 
     public static final EntityType<ElectricEelEntity> ELECTRIC_EEL_ENTITY = Registry.register(
             Registries.ENTITY_TYPE, new Identifier("electric_eel", "electric_eel"),
-            QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(1F, 0.75F)).build()
+            QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(0.75F, 0.75F)).build()
     );
 
 
