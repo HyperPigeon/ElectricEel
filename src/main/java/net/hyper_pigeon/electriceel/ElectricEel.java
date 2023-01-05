@@ -16,7 +16,7 @@ public class ElectricEel implements ModInitializer {
 
     public static final EntityType<ElectricEelEntity> ELECTRIC_EEL_ENTITY = Registry.register(
             Registries.ENTITY_TYPE, new Identifier("electric_eel", "electric_eel"),
-            QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(0.75F, 0.75F)).build()
+            QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(0.5F, 0.5F)).build()
     );
 
 

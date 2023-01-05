@@ -1,7 +1,6 @@
 package net.hyper_pigeon.electriceel.entity;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.quiltmc.qsl.entity.multipart.api.AbstractEntityPart;
 
@@ -36,8 +35,10 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity> {
         double destZ = followZ + f * diff.getZ();
 
 
-        this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F, (float) MathHelper.lerp(0.1,prevPitch,-(float) (Math.atan2(diff.getY(), diff.lengthSquared()) * 180.0D / Math.PI)));
+        this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F, -(float) (Math.atan2(diff.getY(), diff.lengthSquared()) * 180.0D / Math.PI));
 
     }
+
+
 
 }

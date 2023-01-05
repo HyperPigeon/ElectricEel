@@ -6,6 +6,8 @@ import net.hyper_pigeon.electriceel.entity.ElectricEelEntity;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.AnimalModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Axis;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +35,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
 
     private final List<ElectricEelModelPart> bodyParts;
     private float tickDelta;
+    public ElectricEelEntity electricEelEntity;
 
 
 
@@ -60,59 +63,73 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
     public static TexturedModelData getTexturedModelData() {
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
-        ModelPartData head = modelPartData.addChild("head", ModelPartBuilder.create().uv(28, 0).cuboid(-2.5F, -1.5F, -3.0F, 5.0F, 3.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.5F, 16.0F, -11.0F));
+        ModelPartData head = modelPartData.addChild("head", ModelPartBuilder.create().uv(28, 0).cuboid(-2.5F, -1.5F, 3.0F, 5.0F, 3.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.5F, 16.0F, -11.0F));
 
-        ModelPartData jaw = head.addChild("jaw", ModelPartBuilder.create().uv(32, 32).cuboid(-2.5F, -0.5F, -4.0F, 5.0F, 1.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 2.0F, 1.0F));
+        ModelPartData jaw = head.addChild("jaw", ModelPartBuilder.create().uv(32, 32).cuboid(-2.5F, -0.5F, 2.0F, 5.0F, 1.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 2.0F, 1.0F));
 
         ModelPartData body = modelPartData.addChild("body", ModelPartBuilder.create(), ModelTransform.pivot(0.5F, 16.0F, -11.0F));
 
-        ModelPartData segment1 = body.addChild("segment1", ModelPartBuilder.create().uv(14, 5).cuboid(-2.0F, -2.0F, 2.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(14, 0).cuboid(-0.5F, 3.0F, 5.0F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment1 = body.addChild("segment1", ModelPartBuilder.create().uv(14, 5).cuboid(-2.0F, -2.0F, 8.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(14, 0).cuboid(-0.5F, 3.0F, 11.0F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData fin2_r1 = segment1.addChild("pectoralFin1", ModelPartBuilder.create().uv(22, 0).cuboid(-1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 8.0F, 2.0F, 0.0F, -0.2618F, 0.0F));
+        ModelPartData fin2_r1 = segment1.addChild("pectoralFin1", ModelPartBuilder.create().uv(22, 0).cuboid(-1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 8.0F, 8.0F, 0.0F, -0.2618F, 0.0F));
 
-        ModelPartData fin1_r1 = segment1.addChild("pectoralFin2", ModelPartBuilder.create().uv(46, 12).cuboid(1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 8.0F, 2.0F, 0.0F, 0.2618F, 0.0F));
+        ModelPartData fin1_r1 = segment1.addChild("pectoralFin2", ModelPartBuilder.create().uv(46, 12).cuboid(1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 8.0F, 8.0F, 0.0F, 0.2618F, 0.0F));
 
-        ModelPartData segment2 = body.addChild("segment2", ModelPartBuilder.create().uv(0, 11).cuboid(-2.0F, -2.0F, 7.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(46, 32).cuboid(-0.5F, 3.0F, 7.0F, 1.0F, 3.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment2 = body.addChild("segment2", ModelPartBuilder.create().uv(0, 11).cuboid(-2.0F, -2.0F, 13.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(46, 32).cuboid(-0.5F, 3.0F, 13.0F, 1.0F, 3.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment3 = body.addChild("segment3", ModelPartBuilder.create().uv(0, 0).cuboid(-2.0F, -2.0F, 12.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(32, 38).cuboid(-0.5F, 3.0F, 12.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment3 = body.addChild("segment3", ModelPartBuilder.create().uv(0, 0).cuboid(-2.0F, -2.0F, 18.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(32, 38).cuboid(-0.5F, 3.0F, 18.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment4 = body.addChild("segment4", ModelPartBuilder.create().uv(26, 21).cuboid(-1.5F, -2.0F, 17.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(42, 2).cuboid(-0.5F, 3.0F, 17.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment4 = body.addChild("segment4", ModelPartBuilder.create().uv(26, 21).cuboid(-1.5F, -2.0F, 23.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(42, 2).cuboid(-0.5F, 3.0F, 23.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment5 = body.addChild("segment5", ModelPartBuilder.create().uv(0, 22).cuboid(-1.5F, -2.0F, 22.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(40, 42).cuboid(-0.5F, 3.0F, 22.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment5 = body.addChild("segment5", ModelPartBuilder.create().uv(0, 22).cuboid(-1.5F, -2.0F, 28.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(40, 42).cuboid(-0.5F, 3.0F, 28.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment6 = body.addChild("segment6", ModelPartBuilder.create().uv(14, 16).cuboid(-1.5F, -2.0F, 27.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(0, 43).cuboid(-0.5F, 3.0F, 27.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment6 = body.addChild("segment6", ModelPartBuilder.create().uv(14, 16).cuboid(-1.5F, -2.0F, 33.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(0, 43).cuboid(-0.5F, 3.0F, 33.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment7 = body.addChild("segment7", ModelPartBuilder.create().uv(22, 32).cuboid(-1.0F, -2.0F, 32.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(19, 43).cuboid(-0.5F, 3.0F, 32.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment7 = body.addChild("segment7", ModelPartBuilder.create().uv(22, 32).cuboid(-1.0F, -2.0F, 38.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(19, 43).cuboid(-0.5F, 3.0F, 38.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment8 = body.addChild("segment8", ModelPartBuilder.create().uv(12, 27).cuboid(-1.0F, -2.0F, 37.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(46, 20).cuboid(-0.5F, 3.0F, 37.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment8 = body.addChild("segment8", ModelPartBuilder.create().uv(12, 27).cuboid(-1.0F, -2.0F, 43.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(46, 20).cuboid(-0.5F, 3.0F, 43.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment9 = body.addChild("segment9", ModelPartBuilder.create().uv(28, 10).cuboid(-1.0F, -2.0F, 42.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(0, 33).cuboid(-0.5F, 3.0F, 42.0F, 1.0F, 3.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment9 = body.addChild("segment9", ModelPartBuilder.create().uv(28, 10).cuboid(-1.0F, -2.0F, 48.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(0, 33).cuboid(-0.5F, 3.0F, 48.0F, 1.0F, 3.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment10 = body.addChild("segment10", ModelPartBuilder.create().uv(38, 15).cuboid(-0.5F, -2.0F, 47.0F, 1.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(0, 0).cuboid(-0.5F, 0.0F, 53.0F, 1.0F, 3.0F, 2.0F, new Dilation(0.0F))
-                .uv(9, 38).cuboid(-0.5F, 3.0F, 48.0F, 1.0F, 2.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-
-
+        ModelPartData segment10 = body.addChild("segment10", ModelPartBuilder.create().uv(38, 15).cuboid(-0.5F, -2.0F, 53.0F, 1.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(0, 0).cuboid(-0.5F, 0.0F, 59.0F, 1.0F, 3.0F, 2.0F, new Dilation(0.0F))
+                .uv(9, 38).cuboid(-0.5F, 3.0F, 54.0F, 1.0F, 2.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
         return TexturedModelData.of(modelData, 64, 64);
     }
 
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         this.head.getModelPart().render(matrices, vertices, light, overlay, red, green, blue, alpha);
+
+        if(electricEelEntity != null){
+            for(int i = 0; i < electricEelEntity.bodySegments.length; i++){
+                float yawDiff = electricEelEntity.bodySegments[i].getYaw() - electricEelEntity.prevYaw;
+                if (yawDiff > 180) {
+                    yawDiff -= 360;
+                } else if (yawDiff < -180) {
+                    yawDiff += 360;
+                }
+                float yaw2 = (float) (electricEelEntity.bodySegments[i].prevYaw + yawDiff * 0.10);
+                this.bodyParts.get(i+1).getModelPart().yaw = yaw2 * ((float)Math.PI / 180);
+            }
+        }
+
         this.body.getModelPart().render(matrices, vertices, light, overlay, red, green, blue, alpha);
+
     }
+
 
     @Override
     protected Iterable<ModelPart> getHeadParts() {
-        return ImmutableList.of();
+        return ImmutableList.of(this.head.getModelPart());
     }
 
     @Override
@@ -131,37 +148,32 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
     @Override
     public void animateModel(ElectricEelEntity entity, float limbAngle, float limbDistance, float tickDelta) {
         this.tickDelta = tickDelta;
+        this.electricEelEntity = entity;
     }
-
-    public float getEelYaw(ElectricEelEntity entity) {
-        Vec3d vec3d = new Vec3d(entity.getX()-entity.getMoveControl().getTargetX(), entity.getY()-entity.getMoveControl().getTargetY(),
-                entity.getZ()-entity.getMoveControl().getTargetZ());
-        vec3d = vec3d.normalize();
-        float yaw = (float) Math.atan2(vec3d.x,vec3d.z);
-        return -1*yaw;
-    }
-
-
 
 
     @Override
     public void setAngles(ElectricEelEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 
+        //System.out.println((entity.headYaw - 180.0F - entity.bodyYaw) * (float) (Math.PI / 180.0));
         this.head.previousPitch = this.head.currentPitch;
-        this.head.previousYaw = this.head.currentYaw;
+        //this.head.previousYaw = this.head.currentYaw;
         this.head.currentPitch = headPitch * ((float)Math.PI / 180);
-        this.head.currentYaw = headYaw * ((float)Math.PI / 180);
+        this.head.currentYaw = (entity.headYaw - 180.0F - entity.bodyYaw) * (float) (Math.PI / 180.0);
         this.head.getModelPart().pitch = this.head.currentPitch;
-        this.head.getModelPart().yaw = this.head.currentYaw;
+        //this.head.getModelPart().yaw = this.head.currentYaw;
 
         ElectricEelModelPart previousPart = this.head;
         for(int i = 1; i < bodyParts.size(); i++){
+
+            //float h = MathHelper.lerpAngleDegrees(tickDelta, entity.bodySegments[i-1].prevYaw,  entity.bodySegments[i-1].getYaw());
+
             bodyParts.get(i).previousPitch = bodyParts.get(i).currentPitch;
-            bodyParts.get(i).previousYaw = bodyParts.get(i).currentYaw;
+            //bodyParts.get(i).previousYaw = bodyParts.get(i).currentYaw;
             bodyParts.get(i).currentPitch = this.lerpAngleDegrees(0.10f,bodyParts.get(i).previousPitch,previousPart.previousPitch);
-            bodyParts.get(i).currentYaw = this.lerpAngleDegrees(0.10f,bodyParts.get(i).previousYaw,previousPart.previousYaw);
+            //bodyParts.get(i).currentYaw = this.lerpAngleDegrees(0.10f,bodyParts.get(i).previousYaw,previousPart.previousYaw);
             bodyParts.get(i).getModelPart().pitch = bodyParts.get(i).currentPitch;
-            bodyParts.get(i).getModelPart().yaw = bodyParts.get(i).currentYaw;
+            //bodyParts.get(i).getModelPart().yaw =  bodyParts.get(i).currentYaw;
             previousPart = bodyParts.get(i);
         }
 
