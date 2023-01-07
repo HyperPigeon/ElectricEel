@@ -53,6 +53,10 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         return 1;
     }
 
+    public int getLookYawSpeed(){
+        return 1;
+    }
+
     public int getBodyYawSpeed() {
         return 1;
     }
