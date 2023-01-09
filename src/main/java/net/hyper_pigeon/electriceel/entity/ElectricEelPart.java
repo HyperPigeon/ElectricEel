@@ -1,6 +1,7 @@
 package net.hyper_pigeon.electriceel.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.util.math.Vec3d;
 import org.quiltmc.qsl.entity.multipart.api.AbstractEntityPart;
 
@@ -11,6 +12,22 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity> {
     public ElectricEelPart(ElectricEelEntity owner, float width, float height, int partNumber) {
         super(owner, width, height);
         this.partNumber = partNumber;
+    }
+
+    public void tick(){
+        super.tick();
+        if (this.world.isClient) {
+            this.world
+                    .addParticle(
+                            DustParticleEffect.DEFAULT,
+                            this.getParticleX(0.5),
+                            this.getRandomBodyY() - 0.25,
+                            this.getParticleZ(3),
+                            (this.random.nextDouble() - 0.5) * 2.0,
+                            -this.random.nextDouble(),
+                            (this.random.nextDouble() - 0.5) * 2.0
+                    );
+        }
     }
 
     public void movePart(Entity leader){

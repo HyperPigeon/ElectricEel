@@ -6,7 +6,7 @@
   "mixins": [
   ],
   "client": [
-    "AxolotlEntityModelMixin"
+    "LivingEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

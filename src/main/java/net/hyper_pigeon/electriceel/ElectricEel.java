@@ -2,9 +2,11 @@ package net.hyper_pigeon.electriceel;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.hyper_pigeon.electriceel.entity.ElectricEelEntity;
+import net.hyper_pigeon.electriceel.status_effect.ShockStatusEffect;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -19,6 +21,7 @@ public class ElectricEel implements ModInitializer {
             QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(0.5F, 0.5F)).build()
     );
 
+    public static final ShockStatusEffect SHOCK_STATUS_EFFECT = Registry.register(Registries.STATUS_EFFECT, new Identifier("electric_eel","shock"),new ShockStatusEffect(StatusEffectType.HARMFUL,11141120));
 
     @Override
     public void onInitialize(ModContainer mod) {
