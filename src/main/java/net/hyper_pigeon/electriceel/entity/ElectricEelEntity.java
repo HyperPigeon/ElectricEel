@@ -361,9 +361,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         }
     }
 
-    public BlockPos getRandomBodyBlockPos(){
-        return 0;
-    }
 
     @Override
     public void attack(LivingEntity target, float pullProgress) {
