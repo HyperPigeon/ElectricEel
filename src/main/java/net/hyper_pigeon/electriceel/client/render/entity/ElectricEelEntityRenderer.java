@@ -24,29 +24,5 @@ public class ElectricEelEntityRenderer extends MobEntityRenderer<ElectricEelEnti
     @Override
     public void render(ElectricEelEntity mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
-
-//        if(!mobEntity.isInvisible()){
-//
-//
-//            for(int k = 0; i < mobEntity.bodySegments.length; k++){
-//
-//                matrixStack.push();
-//
-//                float yawDiff = mobEntity.getYaw() - mobEntity.prevYaw;
-//                if (yawDiff > 180) {
-//                    yawDiff -= 360;
-//                } else if (yawDiff < -180) {
-//                    yawDiff += 360;
-//                }
-//                float yaw2 = mobEntity.prevYaw + yawDiff * g;
-//
-//
-//                matrixStack.multiply(Axis.Y_POSITIVE.rotationDegrees(yaw2));
-//                matrixStack.multiply(Axis.X_POSITIVE.rotationDegrees(mobEntity.getPitch()));
-//
-//                matrixStack.pop();
-//            }
-//        }
-
     }
 }

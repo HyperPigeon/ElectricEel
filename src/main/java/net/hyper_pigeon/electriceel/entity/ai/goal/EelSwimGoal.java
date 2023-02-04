@@ -33,7 +33,7 @@ public class EelSwimGoal extends SwimAroundGoal {
             if(!optional.isEmpty()) {
                 targetFishItemStack = optional.get();
             }
-            electricEelEntity.feeding = true;
+            electricEelEntity.setFeeding(true);
         }
 
         return this.targetFishItemStack != null && !this.targetFishItemStack.isRemoved() ? new Vec3d(targetFishItemStack.getX(),targetFishItemStack.getY(),targetZ): LookTargetUtil.find(this.mob, 10, 7);

@@ -147,9 +147,11 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         this.head.currentPitch = headPitch * ((float)Math.PI / 180);
         this.head.getModelPart().pitch = this.head.currentPitch;
 
-
         if(entity.isFeeding()){
             this.head.getModelPart().getChild("jaw").pitch = 70 * ((float)Math.PI / 180);
+        }
+        else {
+            this.head.getModelPart().getChild("jaw").pitch = 0;
         }
 
         ElectricEelModelPart previousPart = this.head;
@@ -157,7 +159,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
             bodyParts.get(i).previousPitch = bodyParts.get(i).currentPitch;
             bodyParts.get(i).currentPitch = this.lerpAngleDegrees(0.10f,bodyParts.get(i).previousPitch,previousPart.previousPitch);
             bodyParts.get(i).getModelPart().pitch = bodyParts.get(i).currentPitch;
-            bodyParts.get(i).getModelPart().yaw = -MathHelper.fwrapDegrees(this.lerpAngleDegrees(0.40f, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
+            bodyParts.get(i).getModelPart().yaw = -MathHelper.fwrapDegrees(this.lerpAngleDegrees(0.30f, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
 
             previousPart = bodyParts.get(i);
 

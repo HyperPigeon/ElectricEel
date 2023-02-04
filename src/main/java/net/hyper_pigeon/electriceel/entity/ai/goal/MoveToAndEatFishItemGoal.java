@@ -5,6 +5,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
@@ -30,7 +31,6 @@ public class MoveToAndEatFishItemGoal extends Goal {
                     .filter(electricEelEntity::canSee)
                     .findFirst();
             if(!optional.isEmpty()) {
-                targetFishItemStack = optional.get();
                 return true;
             }
         }
@@ -38,35 +38,47 @@ public class MoveToAndEatFishItemGoal extends Goal {
     }
 
     public void start(){
+        List<ItemEntity> list = this.electricEelEntity.world.getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH));
+        Optional<ItemEntity> optional = list.stream()
+                .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
+                .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))
+                .filter(itemEntity -> itemEntity.isTouchingWater())
+                .filter(electricEelEntity::canSee)
+                .findFirst();
+
+        this.targetFishItemStack = optional.get();
         electricEelEntity.setFeeding(true);
-        electricEelEntity.getLookControl().lookAt(targetFishItemStack);
-        Path path = electricEelEntity.getNavigation().findPathTo(targetFishItemStack,1);
-        electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
+        electricEelEntity.getNavigation().startMovingTo(targetFishItemStack,1.2F);
     }
 
     public void stop() {
-        electricEelEntity.getNavigation().stop();
-        targetFishItemStack = null;
         electricEelEntity.setFeeding(false);
+        targetFishItemStack = null;
     }
 
     public void tick() {
         if (targetFishItemStack != null) {
-            if(electricEelEntity.getNavigation().isIdle()) {
-                electricEelEntity.getLookControl().lookAt(targetFishItemStack);
-
-                Path path = electricEelEntity.getNavigation().findPathTo(targetFishItemStack,0);
-                electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
-                Vec3d directionVector = (new Vec3d(targetFishItemStack.getX(),targetFishItemStack.getY(),targetFishItemStack.getZ()).subtract(new Vec3d(electricEelEntity.getX(),electricEelEntity.getY(),electricEelEntity.getZ()))).normalize();
-                directionVector = directionVector.multiply(-0.025);
-                targetFishItemStack.setVelocity(directionVector);
-
-            }
             electricEelEntity.getLookControl().lookAt(targetFishItemStack);
-            Path path = electricEelEntity.getNavigation().findPathTo(targetFishItemStack,1);
-            electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
-        }
+            Path path;
 
+            if(targetFishItemStack.getY() > electricEelEntity.getY()){
+                path =  electricEelEntity.getNavigation().
+                        findPathTo
+                                (new BlockPos(targetFishItemStack.getX(),
+                                        targetFishItemStack.getY()+2,
+                                        targetFishItemStack.getZ()),1);
+            } else {
+                path =  electricEelEntity.getNavigation().
+                        findPathTo
+                                (new BlockPos(targetFishItemStack.getX(),
+                                        targetFishItemStack.getY()-2,
+                                        targetFishItemStack.getZ()),1);
+            }
+
+
+            electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
+
+        }
     }
 
 }
