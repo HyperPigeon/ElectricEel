@@ -3,9 +3,9 @@ package net.hyper_pigeon.electriceel.entity;
 import net.hyper_pigeon.electriceel.ElectricEel;
 import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishEntityGoal;
 import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishItemGoal;
+import net.hyper_pigeon.electriceel.interfaces.EelPowered;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.LightningRodBlock;
 import net.minecraft.block.Material;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
@@ -24,17 +24,24 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.passive.FishEntity;
+import net.minecraft.entity.passive.GlowSquidEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -42,32 +49,38 @@ import org.jetbrains.annotations.Nullable;
 import org.quiltmc.qsl.entity.multipart.api.EntityPart;
 import org.quiltmc.qsl.entity.multipart.api.MultipartEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class ElectricEelEntity extends WaterCreatureEntity implements MultipartEntity, RangedAttackMob {
+public class ElectricEelEntity extends WaterCreatureEntity implements MultipartEntity, RangedAttackMob, Bucketable {
 
 
-    public final ElectricEelPart[] bodySegments = new ElectricEelPart[10];
+    public final ElectricEelPart[] bodySegments = new ElectricEelPart[8];
 
-    private int charge = 3;
+    private int pulseCharge = 3;
     private int hungerCooldown = 0;
-    private int pulseCooldown = 60;
-    private int beamCooldown = 10;
+    private int pulseCooldown = 100;
+    private int eatingTicks = 0;
+
+    private ItemStack lastConsumedItemStack;
 
     public static final TrackedData<Boolean> FEEDING = DataTracker.registerData(ElectricEelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<Boolean> FROM_BUCKET = DataTracker.registerData(ElectricEelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+
 
 
     public ElectricEelEntity(EntityType<? extends WaterCreatureEntity> entityType, World world) {
         super(entityType, world);
         this.navigation = new AmphibiousNavigation(this, world);
-        this.moveControl = new AquaticMoveControl(this, 85, 10, 0.1f, 0.5f, true);
+        this.moveControl = new AquaticMoveControl(this, 85, 10, 0.1f, 0.01f, true);
         this.lookControl = new AquaticLookControl(this,20);
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 8; i++){
             bodySegments[i] = new ElectricEelPart(this,0.33F,0.33F, i);
             bodySegments[i].setInvisible(false);
             bodySegments[i].refreshPositionAndAngles(getX(),getY(),getZ()-i*0.15,getYaw(),getPitch());
         }
+
 
     }
 
@@ -89,17 +102,20 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         this.goalSelector.add(2, new ElectricEelEntity.PulseAttackGoal(this, 1.5F, 60,8));
         this.goalSelector.add(3, new SwimAroundGoal(this, 1.0, 10));
 
-        this.targetSelector.add(1, new TargetGoal<>(this, FishEntity.class, false,  livingEntity -> this.getHungerCooldown() <= 0));
+        this.targetSelector.add(1, new TargetGoal<>(this, LivingEntity.class, false,  livingEntity -> (livingEntity instanceof FishEntity) && this.getHungerCooldown() <= 0));
     }
 
 
     public static DefaultAttributeContainer.Builder createElectricEelAttributes() {
-        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 1.1).add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 32.0);
+        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 32.0);
     }
 
     protected void initDataTracker() {
         super.initDataTracker();
         this.dataTracker.startTracking(FEEDING, false);
+        this.dataTracker.startTracking(FROM_BUCKET, false);
+
+
     }
 
     public boolean isFeeding(){
@@ -151,20 +167,13 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     }
 
     public boolean canPickupItem(ItemStack stack) {
-        return stack.getItem().equals(Items.SALMON) || stack.getItem().equals(Items.COD) || stack.getItem().equals(Items.TROPICAL_FISH);
+        return stack.getItem().equals(Items.SALMON) || stack.getItem().equals(Items.COD) || stack.getItem().equals(Items.TROPICAL_FISH) || stack.getItem().equals(Items.GLOW_INK_SAC);
     }
 
     protected void loot(ItemEntity item) {
 
-        if(item.getStack().getItem().equals(Items.SALMON)){
-            this.charge = 3;
-        }
-        else if(item.getStack().getItem().equals(Items.COD)){
-            this.charge = 6;
-        }
-        else if(item.getStack().getItem().equals(Items.TROPICAL_FISH)) {
-            this.charge = 9;
-        }
+
+        setLastConsumedItemStack(item.getStack());
 
         ItemStack itemStack = item.getStack();
         itemStack.decrement(1);
@@ -173,35 +182,97 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             item.discard();
         }
 
-        setFeeding(false);
-        hungerCooldown = 6000;
+        if(!world.isClient()) {
+            ServerWorld serverWorld = (ServerWorld) this.getWorld();
+            serverWorld.playSoundFromEntity(null, this, SoundEvents.ITEM_HONEY_BOTTLE_DRINK, SoundCategory.NEUTRAL, 2.0F, 1.0F);
+        }
+
+        hungerCooldown = 1200;
+        setEatingTicks(25);
+    }
+
+    public void spawnItemParticles(ItemStack stack, int count) {
+        ServerWorld serverWorld = (ServerWorld)this.world;
+        double particleX = this.getX()+(-0.25 + (0.25 - (-0.25)) * this.getRandom().nextDouble());
+        double particleY = this.getY()+(-0.1 + (0.1 - (-0.1)) * this.getRandom().nextDouble());
+        double particleZ = this.getZ()+(-0.25 + (0.25 - (-0.25)) * this.getRandom().nextDouble());
+        Vec3d vec3d = new Vec3d(((double)this.random.nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0.0);
+        serverWorld.spawnParticles(new ItemStackParticleEffect(ParticleTypes.ITEM,stack),
+                particleX,particleY,particleZ,count,vec3d.x,vec3d.y+0.05,vec3d.z,0.0);
+    }
+
+    public void setLastConsumedItemStack(ItemStack itemStack){
+        if(itemStack.getItem().equals(Items.SALMON)){
+            this.pulseCharge = 3;
+            lastConsumedItemStack = new ItemStack(Items.SALMON);
+        }
+        else if(itemStack.getItem().equals(Items.COD)){
+            this.pulseCharge = 6;
+            lastConsumedItemStack = new ItemStack(Items.COD);
+        }
+        else if(itemStack.getItem().equals(Items.TROPICAL_FISH)){
+            this.pulseCharge = 9;
+            lastConsumedItemStack = new ItemStack(Items.TROPICAL_FISH);
+        }
+        else if(itemStack.getItem().equals(Items.GLOW_INK_SAC)) {
+            this.pulseCharge = 12;
+            lastConsumedItemStack = new ItemStack(Items.GLOW_INK_SAC);
+        }
+    }
+
+    public void setEatingTicks(int ticks){
+        this.eatingTicks = ticks;
+    }
+
+    public void baseTick(){
+
+        hungerCooldown = hungerCooldown <= 0 ? hungerCooldown : hungerCooldown-1;
+        pulseCooldown = pulseCooldown <= 0 ? pulseCooldown : pulseCooldown-1;
+
+        if(eatingTicks > 0 && !world.isClient()){
+            spawnItemParticles(lastConsumedItemStack,2);
+            eatingTicks--;
+        }
+
+        super.baseTick();
     }
 
     public void tickMovement() {
         super.tickMovement();
 
-        hungerCooldown = hungerCooldown <= 0 ? hungerCooldown : hungerCooldown-1;
-        pulseCooldown = pulseCooldown <= 0 ? pulseCooldown : pulseCooldown-1;
-
-        if (this.world.isClient && pulseCooldown <= 0) {
-            for (int i = 0; i < 2; ++i) {
-                this.world
-                        .addParticle(
-                                ParticleTypes.ELECTRIC_SPARK,
-                                this.getParticleX(0.75),
-                                this.getRandomBodyY() - 0.25,
-                                this.getParticleZ(0.75),
-                                (this.random.nextDouble() - 0.5) * 2.0,
-                                -this.random.nextDouble(),
-                                (this.random.nextDouble() - 0.5) * 2.0
-                        );
-            }
-        }
-
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < bodySegments.length; i++){
             Entity leader = i == 0 ? this : this.bodySegments[i - 1];
             ElectricEelPart electricEelPart = this.bodySegments[i];
+            //double straightenForce = 0.05D + (1.0D / (i + 1)) * 0.5D;
             electricEelPart.movePart(leader);
+        }
+
+        if(!world.isClient() && this.getTarget() != null) {
+            ServerWorld serverWorld = (ServerWorld) this.world;
+
+            double particleX = this.bodySegments[1].getParticleX(0.33)+(-0.75 + (0.75  - (-0.75 )) * this.getRandom().nextDouble());
+            double particleY = this.bodySegments[1].getY()+(-0.75  + (0.75  - (-0.75 )) * this.getRandom().nextDouble());
+            double particleZ = this.bodySegments[1].getParticleZ(0.33)+(-0.75  + (0.75  - (-0.75 )) * this.getRandom().nextDouble());
+
+            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,particleX,particleY,particleZ,3,particleX-this.bodySegments[1].getX(),particleY-this.bodySegments[1].getY(),particleZ-this.bodySegments[1].getZ(),
+                    0.1);
+        }
+
+
+        Box box = this.getBoundingBox().expand(0.1);
+        for(BlockPos blockPos : BlockPos.iterate(
+                MathHelper.floor(box.minX),
+                MathHelper.floor(box.minY),
+                MathHelper.floor(box.minZ),
+                MathHelper.floor(box.maxX),
+                MathHelper.floor(box.maxY),
+                MathHelper.floor(box.maxZ)
+        )) {
+            BlockState blockState = this.world.getBlockState(blockPos);
+            if (blockState.getMaterial().equals(Material.METAL)) {
+                this.pulse(false, false,8);
+                break;
+            }
         }
 
     }
@@ -225,22 +296,16 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         return super.damage(source,amount);
     }
 
-    protected void onBlockCollision(BlockState state){
-        super.onBlockCollision(state);
-        if(state.getMaterial().equals(Material.METAL)){
-            this.pulse(false, false,8);
-        }
-    }
-
     private void pulse(boolean damaging, boolean seizure_inducing, int radius) {
         if(pulseCooldown <= 0) {
             Box pulseBox = this.getBoundingBox().expand(radius);
-            List<Entity> collidedEntities = this.world.getOtherEntities(this, pulseBox, entity -> entity.isAlive() && (entity instanceof LivingEntity) && !entity.getType().equals(ElectricEel.ELECTRIC_EEL_ENTITY));
+            List<Entity> collidedEntities = this.world.getOtherEntities(this, pulseBox, entity -> entity.isAlive() && (entity instanceof LivingEntity) && !entity.getType().equals(ElectricEel.ELECTRIC_EEL_ENTITY)
+            && !entity.isSpectator());
             if(damaging) {
                 for(Entity entity : collidedEntities){
                     LivingEntity livingEntity = (LivingEntity) entity;
 
-                    entity.damage(DamageSource.LIGHTNING_BOLT,charge/3);
+                    entity.damage(DamageSource.LIGHTNING_BOLT,pulseCharge/3);
                     if(seizure_inducing && entity instanceof WaterCreatureEntity) {
                         livingEntity.addStatusEffect(new StatusEffectInstance(ElectricEel.SHOCK_STATUS_EFFECT,200));
                         livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS,200, 4));
@@ -249,32 +314,10 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
                     if(!world.isClient()) {
                         ServerWorld serverWorld = (ServerWorld) this.world;
-                        BlockPos startPos = new BlockPos(this.getX(),this.getY(),this.getZ());
-                        BlockPos randomPos = new BlockPos(this.getX() + (livingEntity.getX()-this.getX())*this.random.nextDouble(),
-                                this.getY() + (livingEntity.getY()-this.getY())*this.random.nextDouble(),this.getZ() + (livingEntity.getZ()-this.getZ())*this.random.nextDouble());
-                        BlockPos endPos = new BlockPos(livingEntity.getX(),livingEntity.getY(),livingEntity.getZ());
+                        Vec3d startPos = new Vec3d(this.getX(),this.getY(),this.getZ());
+                        Vec3d endPos = new Vec3d(livingEntity.getX(),livingEntity.getY(),livingEntity.getZ());
 
-                        double currentX = startPos.getX();
-                        double currentY = startPos.getY();
-                        double currentZ = startPos.getZ();
-
-                        double t = 0.025;
-                        while(t <= 1){
-                            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,currentX,currentY, currentZ,2,0,0,0,0.1);
-                            currentX = (1-t)*startPos.getX()+(t*randomPos.getX());
-                            currentY = (1-t)*startPos.getY()+(t*randomPos.getY());
-                            currentZ = (1-t)*startPos.getZ()+(t*randomPos.getZ());
-                            t += 0.025;
-                        }
-
-                        t = 0.01;
-                        while(t <= 1){
-                            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,currentX,currentY, currentZ,2,0,0,0,0.1);      currentX = (1-t)*startPos.getX()+(t*randomPos.getX());
-                            currentX = (1-t)*randomPos.getX()+(t*endPos.getX());
-                            currentY = (1-t)*randomPos.getY()+(t*endPos.getY());
-                            currentZ = (1-t)*randomPos.getZ()+(t*endPos.getZ());
-                            t += 0.025;
-                        }
+                        generateBolt(startPos,endPos,5,2,serverWorld);
                     }
 
 
@@ -293,43 +336,19 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             )) {
                 BlockState blockState = this.world.getBlockState(blockPos);
                 if(blockState.isOf(Blocks.LIGHTNING_ROD)){
-                    LightningRodBlock lightningRodBlock = (LightningRodBlock) blockState.getBlock();
-                    lightningRodBlock.setPowered(blockState, world,blockPos);
-
+                    EelPowered lightningRodBlock = (EelPowered) blockState.getBlock();
+                    lightningRodBlock.setEelPowered(blockState, world,blockPos,this.pulseCharge);
                     if(!world.isClient()) {
                         ServerWorld serverWorld = (ServerWorld) this.world;
-                        BlockPos startPos = new BlockPos(this.getX(),this.getY(),this.getZ());
-                        BlockPos randomPos = new BlockPos(this.getX() + (blockPos.getX()-this.getX())*this.random.nextDouble(),
-                                this.getY() + (blockPos.getY()-this.getY())*this.random.nextDouble(),this.getZ() + (blockPos.getZ()-this.getZ())*this.random.nextDouble());
-                        BlockPos endPos = blockPos;
-
-                        double currentX = startPos.getX();
-                        double currentY = startPos.getY();
-                        double currentZ = startPos.getZ();
-
-                        double t = 0.010;
-                        while(t <= 1){
-                            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,currentX,currentY, currentZ,2,0,0,0,0.1);
-                            currentX = (1-t)*startPos.getX()+(t*randomPos.getX());
-                            currentY = (1-t)*startPos.getY()+(t*randomPos.getY());
-                            currentZ = (1-t)*startPos.getZ()+(t*randomPos.getZ());
-                            t += 0.025;
-                        }
-
-                        t = 0.01;
-                        while(t <= 1){
-                            serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,currentX,currentY, currentZ,2,0,0,0,0.1);
-                            currentX = (1-t)*randomPos.getX()+(t*endPos.getX());
-                            currentY = (1-t)*randomPos.getY()+(t*endPos.getY());
-                            currentZ = (1-t)*randomPos.getZ()+(t*endPos.getZ());
-                            t += 0.025;
-                        }
+                        Vec3d startPos = new Vec3d(this.getX(),this.getY(),this.getZ());
+                        Vec3d endPos = new Vec3d(blockPos.getX(),blockPos.getY(),blockPos.getZ());
+                        generateBolt(startPos,endPos,5,2,serverWorld);
                     }
 
                 }
             }
 
-            pulseCooldown = 60;
+            pulseCooldown = 100;
         }
     }
 
@@ -338,14 +357,16 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
         hungerCooldown = nbt.getInt("hungerCooldown");
-        charge = nbt.getInt("charge");
+        pulseCharge = nbt.getInt("pulseCharge");
+        this.setFromBucket(nbt.getBoolean("FromBucket"));
     }
 
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putInt("hungerCooldown",hungerCooldown);
-        nbt.putInt("charge",charge);
+        nbt.putInt("pulseCharge",pulseCharge);
+        nbt.putBoolean("FromBucket", this.isFromBucket());
     }
 
     @Override
@@ -362,9 +383,124 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     }
 
 
+
     @Override
     public void attack(LivingEntity target, float pullProgress) {
-        this.pulse(true,true, 5);
+        if(target != null &&target.isAlive()){
+            target.setAttacker(this);
+            this.pulse(true,true, 5);
+        }
+    }
+
+    public int getPulseCooldown(){
+        return pulseCooldown;
+    }
+
+    protected ActionResult interactMob(PlayerEntity player, Hand hand) {
+        return (ActionResult)Bucketable.tryBucket(player, hand, this).orElse(super.interactMob(player, hand));
+    }
+
+    @Override
+    public boolean isFromBucket() {
+         return this.dataTracker.get(FROM_BUCKET);
+    }
+
+    @Override
+    public void setFromBucket(boolean fromBucket) {
+        this.dataTracker.set(FROM_BUCKET, fromBucket);
+    }
+
+    @Override
+    public void copyDataToStack(ItemStack stack) {
+        Bucketable.copyDataToStack(this, stack);
+    }
+
+    @Override
+    public void copyDataFromNbt(NbtCompound nbt) {
+        Bucketable.copyDataFromNbt(this, nbt);
+    }
+
+    @Override
+    public ItemStack getBucketItem() {
+        return new ItemStack(ElectricEel.EEL_BUCKET);
+    }
+
+    @Override
+    public SoundEvent getBucketedSound() {
+        return SoundEvents.ENTITY_FISH_SWIM;
+    }
+
+    public void generateBolt(Vec3d startPos, Vec3d endPos, double maxOffset, int generations, ServerWorld serverWorld){
+        double offsetAmount = maxOffset;
+
+        ArrayList<Segment> segmentList = new ArrayList<>();
+        segmentList.add(new Segment(startPos,endPos));
+
+        for (int i = 0; i < generations; i++){
+            ArrayList<Segment> segmentsToRemove = new ArrayList<>();
+            ArrayList<Segment> segmentsToAdd = new ArrayList<>();
+            for(Segment segment : segmentList){
+                segmentsToRemove.add(segment);
+                Vec3d midPoint = new Vec3d((segment.getStartPos().getX() + segment.getEndPos().getX())/2,(segment.getStartPos().getY() + segment.getEndPos().getY())/2,
+                        (segment.getStartPos().getZ() + segment.getEndPos().getZ())/2);
+                double randomValue = -offsetAmount + (offsetAmount - (-offsetAmount)) * this.getRandom().nextDouble();
+                midPoint.add((segment.getStartPos().subtract(segment.getEndPos()).normalize()).crossProduct(new Vec3d(1,1,1)).multiply(randomValue));
+                segmentsToAdd.add(new Segment(segment.getStartPos(),midPoint));
+                segmentsToAdd.add(new Segment(midPoint,segment.getEndPos()));
+
+//                if(this.getRandom().nextDouble() <= 0.35){
+//                    Vec3d direction = midPoint.subtract(segment.getStartPos());
+//                    Vec3d splitEnd = direction.rotateX(this.getRandom().nextFloat()*0.34f).
+//                            rotateY(this.getRandom().nextFloat()*0.34f).rotateZ(this.getRandom().nextFloat()*0.34f).multiply(0.7).add(midPoint);
+//                    segmentsToAdd.add(new Segment(midPoint, splitEnd));
+//                }
+
+
+            }
+
+            segmentList.removeAll(segmentsToRemove);
+            segmentList.addAll(segmentsToAdd);
+            offsetAmount /= 2;
+
+        }
+
+        for(Segment segment : segmentList){
+            double currentX  = segment.getStartPos().getX();
+            double currentY  = segment.getStartPos().getY();
+            double currentZ  = segment.getStartPos().getZ();
+
+            double t = 0.05;
+            while(t <= 1){
+                    serverWorld.spawnParticles(ParticleTypes.ELECTRIC_SPARK,currentX,currentY, currentZ,1,0,0,0,0.1);
+                    currentX = (1-t)*segment.getStartPos().getX()+(t*segment.getEndPos().getX());
+                    currentY = (1-t)*segment.getStartPos().getY()+(t*segment.getEndPos().getY());
+                    currentZ = (1-t)*segment.getStartPos().getZ()+(t*segment.getEndPos().getZ());
+                    t += 0.05;
+            }
+
+        }
+
+    }
+
+
+
+
+    private class Segment{
+        private Vec3d startPos;
+        private Vec3d endPos;
+
+        public Segment(Vec3d startPos, Vec3d endPos){
+            this.startPos = startPos;
+            this.endPos = endPos;
+        }
+
+        public Vec3d getStartPos(){
+            return startPos;
+        }
+
+        public Vec3d getEndPos(){
+            return endPos;
+        }
     }
 
 
@@ -391,6 +527,8 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             }
         }
     }
+
+
 
 
 }

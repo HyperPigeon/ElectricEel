@@ -6,7 +6,6 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +13,7 @@ import java.util.Optional;
 public class MoveToAndEatFishItemGoal extends Goal {
 
     private final ElectricEelEntity electricEelEntity;
-    private ItemEntity targetFishItemStack;
+    private ItemEntity targetFishItemEntity;
 
     public MoveToAndEatFishItemGoal(ElectricEelEntity electricEelEntity){
         this.electricEelEntity = electricEelEntity;
@@ -23,7 +22,7 @@ public class MoveToAndEatFishItemGoal extends Goal {
     @Override
     public boolean canStart() {
         if(electricEelEntity.getHungerCooldown() <= 0) {
-            List<ItemEntity> list = this.electricEelEntity.world.getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH));
+            List<ItemEntity> list = this.electricEelEntity.world.getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH) || itemEntity.getStack().getItem().equals(Items.GLOW_INK_SAC));
             Optional<ItemEntity> optional = list.stream()
                     .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
                     .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))
@@ -38,7 +37,7 @@ public class MoveToAndEatFishItemGoal extends Goal {
     }
 
     public void start(){
-        List<ItemEntity> list = this.electricEelEntity.world.getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH));
+        List<ItemEntity> list = this.electricEelEntity.world.getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH) || itemEntity.getStack().getItem().equals((Items.GLOW_INK_SAC)));
         Optional<ItemEntity> optional = list.stream()
                 .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
                 .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))
@@ -46,33 +45,35 @@ public class MoveToAndEatFishItemGoal extends Goal {
                 .filter(electricEelEntity::canSee)
                 .findFirst();
 
-        this.targetFishItemStack = optional.get();
-        electricEelEntity.setFeeding(true);
-        electricEelEntity.getNavigation().startMovingTo(targetFishItemStack,1.2F);
+        if(!optional.isEmpty()) {
+            this.targetFishItemEntity = optional.get();
+            electricEelEntity.setFeeding(true);
+            electricEelEntity.getNavigation().startMovingTo(targetFishItemEntity,1.2F);
+        }
+
     }
 
     public void stop() {
         electricEelEntity.setFeeding(false);
-        targetFishItemStack = null;
+        targetFishItemEntity = null;
     }
 
     public void tick() {
-        if (targetFishItemStack != null) {
-            electricEelEntity.getLookControl().lookAt(targetFishItemStack);
+        if (targetFishItemEntity != null) {
+            electricEelEntity.getLookControl().lookAt(targetFishItemEntity);
             Path path;
-
-            if(targetFishItemStack.getY() > electricEelEntity.getY()){
+            if(targetFishItemEntity.getY() > electricEelEntity.getY()){
                 path =  electricEelEntity.getNavigation().
                         findPathTo
-                                (new BlockPos(targetFishItemStack.getX(),
-                                        targetFishItemStack.getY()+2,
-                                        targetFishItemStack.getZ()),1);
+                                (new BlockPos(targetFishItemEntity.getX(),
+                                        targetFishItemEntity.getY()+2,
+                                        targetFishItemEntity.getZ()),1);
             } else {
                 path =  electricEelEntity.getNavigation().
                         findPathTo
-                                (new BlockPos(targetFishItemStack.getX(),
-                                        targetFishItemStack.getY()-2,
-                                        targetFishItemStack.getZ()),1);
+                                (new BlockPos(targetFishItemEntity.getX(),
+                                        targetFishItemEntity.getY()-2,
+                                        targetFishItemEntity.getZ()),1);
             }
 
 
@@ -80,5 +81,6 @@ public class MoveToAndEatFishItemGoal extends Goal {
 
         }
     }
+
 
 }

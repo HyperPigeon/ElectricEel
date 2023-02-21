@@ -25,4 +25,5 @@ public class ElectricEelEntityRenderer extends MobEntityRenderer<ElectricEelEnti
     public void render(ElectricEelEntity mobEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
         super.render(mobEntity, f, g, matrixStack, vertexConsumerProvider, i);
     }
+
 }

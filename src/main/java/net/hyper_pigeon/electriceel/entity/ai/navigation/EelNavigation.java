@@ -2,11 +2,7 @@ package net.hyper_pigeon.electriceel.entity.ai.navigation;
 
 import net.hyper_pigeon.electriceel.entity.ElectricEelEntity;
 import net.minecraft.entity.ai.pathing.AmphibiousNavigation;
-import net.minecraft.entity.ai.pathing.LandPathNodeMaker;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.DebugInfoSender;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
