@@ -186,10 +186,8 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
 
     @Override
     public void setAngles(ElectricEelEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-
-
         this.head.previousPitch = this.head.currentPitch;
-        this.head.currentPitch = headPitch * ((float)Math.PI / 180);
+        this.head.currentPitch = headPitch * ((float) Math.PI / 180);
         this.head.getModelPart().pitch = this.head.currentPitch;
 
         if(entity.isFeeding()){
@@ -205,29 +203,10 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
             bodyParts.get(i).currentPitch = this.lerpAngleDegrees(0.10f,bodyParts.get(i).previousPitch,previousPart.previousPitch);
             bodyParts.get(i).getModelPart().pitch = bodyParts.get(i).currentPitch;
 
-
-//            float pitchDelta = 0.05f;
-//            bodyParts.get(i).getModelPart().pitch =
-//                    MathHelper.fwrapDegrees
-//                            (this.lerpAngleDegrees(pitchDelta, bodyParts.get(i).getModelPart().pitch,
-//                                    entity.getPitch() - entity.bodySegments[i].getPitch()))*(float)(Math.PI/180);
-
-            float yawDelta = 0.35f;
+            float yawDelta = 0.25f;
             bodyParts.get(i).getModelPart().yaw = -MathHelper.fwrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
-
-
-//            if(i==0){
-//                bodyParts.get(i).getModelPart().yaw = -MathHelper.fwrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
-//            }
-//            else {
-//                bodyParts.get(i).getModelPart().yaw = -MathHelper.fwrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.bodySegments[i-1].getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
-//            }
-
-
-
             previousPart = bodyParts.get(i);
         }
-
     }
 
     private class ElectricEelModelPart {

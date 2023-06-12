@@ -18,27 +18,30 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity>  {
 
 
     public void movePart(Entity leader){
+        setPivot(owner.getPos());
+
         double followX = leader.getX();
         double followY = leader.getY();
         double followZ = leader.getZ();
 
         float yaw = (float) (((leader.getYaw() + 180) * Math.PI) / 180.0F);
-        float pitch = (float) (((leader.getPitch() + 180) * Math.PI) / 180.0F);
-
+        float pitch = (float) (((owner.getPitch() + 180) * Math.PI) / 180.0F);
+        pitch = (float) MathHelper.lerp(0.10f, (((this.getPitch() + 180) * Math.PI) / 180.0F),pitch);
 
 
         double targetX = -Math.sin(yaw);
         double targetZ = Math.cos(yaw);
-        //double targetY = -Math.sin(pitch);
+        double targetY = Math.sin(pitch);
+
 
         //double groundY = this.isInsideWall() ? followY + 2.0F : followY;
-        //double targetY = (groundY - followY);
-
+        //targetY = (groundY - followY);
+        //targetY = targetY;
 
         Vec3d diff = new Vec3d(this.getX() - followX, this.getY() - followY, this.getZ() - followZ);
         diff = diff.normalize();
 
-        diff = diff.add(targetX, 0, targetZ).normalize();
+        diff = diff.add(targetX, targetY, targetZ).normalize();
 
         double f = 0.3D;
 
@@ -46,8 +49,13 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity>  {
         double destY = followY + f * diff.getY();
         double destZ = followZ + f * diff.getZ();
 
-        this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F,  -(float) (Math.atan2(diff.getY(), diff.length()) * 180.0D / Math.PI));
+//        this.setPos(destX, destY, destZ);
+//        this.rotate(-(float) (Math.atan2(diff.getY(), diff.length()) * 180.0D / Math.PI),(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F, true);
+//        this.resetPosition();
+//        this.refreshPosition();
 
+        //this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F,  -(float) (Math.atan2(diff.getY(), diff.length()) * 180.0D / Math.PI));
+        this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F, (float) ((pitch*180F)/Math.PI));
 
     }
 

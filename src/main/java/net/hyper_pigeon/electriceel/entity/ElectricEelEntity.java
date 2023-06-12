@@ -24,7 +24,6 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.passive.FishEntity;
-import net.minecraft.entity.passive.GlowSquidEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -66,7 +65,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
     public static final TrackedData<Boolean> FEEDING = DataTracker.registerData(ElectricEelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private static final TrackedData<Boolean> FROM_BUCKET = DataTracker.registerData(ElectricEelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-
+    
 
 
     public ElectricEelEntity(EntityType<? extends WaterCreatureEntity> entityType, World world) {
@@ -102,7 +101,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         this.goalSelector.add(2, new ElectricEelEntity.PulseAttackGoal(this, 1.5F, 60,8));
         this.goalSelector.add(3, new SwimAroundGoal(this, 1.0, 10));
 
-        this.targetSelector.add(1, new TargetGoal<>(this, LivingEntity.class, false,  livingEntity -> (livingEntity instanceof FishEntity) && this.getHungerCooldown() <= 0));
+        this.targetSelector.add(1, new TargetGoal<>(this, FishEntity.class, false,  fishEntity -> (fishEntity instanceof FishEntity) && this.getHungerCooldown() <= 0));
     }
 
 
@@ -114,8 +113,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         super.initDataTracker();
         this.dataTracker.startTracking(FEEDING, false);
         this.dataTracker.startTracking(FROM_BUCKET, false);
-
-
     }
 
     public boolean isFeeding(){
@@ -243,7 +240,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         for(int i = 0; i < bodySegments.length; i++){
             Entity leader = i == 0 ? this : this.bodySegments[i - 1];
             ElectricEelPart electricEelPart = this.bodySegments[i];
-            //double straightenForce = 0.05D + (1.0D / (i + 1)) * 0.5D;
             electricEelPart.movePart(leader);
         }
 
@@ -323,7 +319,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
                 }
             }
-
 
 
             for(BlockPos blockPos : BlockPos.iterate(
@@ -481,8 +476,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         }
 
     }
-
-
 
 
     private class Segment{
