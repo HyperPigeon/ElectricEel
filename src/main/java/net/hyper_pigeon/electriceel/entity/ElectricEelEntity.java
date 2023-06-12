@@ -6,7 +6,6 @@ import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishItemGoal;
 import net.hyper_pigeon.electriceel.interfaces.EelPowered;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.control.AquaticLookControl;
@@ -71,7 +70,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     public ElectricEelEntity(EntityType<? extends WaterCreatureEntity> entityType, World world) {
         super(entityType, world);
         this.navigation = new AmphibiousNavigation(this, world);
-        this.moveControl = new AquaticMoveControl(this, 85, 10, 0.1f, 0.01f, true);
+        this.moveControl = new AquaticMoveControl(this, 60, 10, 0.1f, 0.3f, true);
         this.lookControl = new AquaticLookControl(this,20);
 
         for(int i = 0; i < 8; i++){
@@ -106,7 +105,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
 
     public static DefaultAttributeContainer.Builder createElectricEelAttributes() {
-        return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 32.0);
+        return MobEntity.createAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 32.0);
     }
 
     protected void initDataTracker() {
@@ -179,7 +178,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             item.discard();
         }
 
-        if(!world.isClient()) {
+        if(!getWorld().isClient()) {
             ServerWorld serverWorld = (ServerWorld) this.getWorld();
             serverWorld.playSoundFromEntity(null, this, SoundEvents.ITEM_HONEY_BOTTLE_DRINK, SoundCategory.NEUTRAL, 2.0F, 1.0F);
         }
@@ -189,7 +188,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     }
 
     public void spawnItemParticles(ItemStack stack, int count) {
-        ServerWorld serverWorld = (ServerWorld)this.world;
+        ServerWorld serverWorld = (ServerWorld)this.getWorld();
         double particleX = this.getX()+(-0.25 + (0.25 - (-0.25)) * this.getRandom().nextDouble());
         double particleY = this.getY()+(-0.1 + (0.1 - (-0.1)) * this.getRandom().nextDouble());
         double particleZ = this.getZ()+(-0.25 + (0.25 - (-0.25)) * this.getRandom().nextDouble());
@@ -226,7 +225,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         hungerCooldown = hungerCooldown <= 0 ? hungerCooldown : hungerCooldown-1;
         pulseCooldown = pulseCooldown <= 0 ? pulseCooldown : pulseCooldown-1;
 
-        if(eatingTicks > 0 && !world.isClient()){
+        if(eatingTicks > 0 && !getWorld().isClient()){
             spawnItemParticles(lastConsumedItemStack,2);
             eatingTicks--;
         }
@@ -243,8 +242,8 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             electricEelPart.movePart(leader);
         }
 
-        if(!world.isClient() && this.getTarget() != null) {
-            ServerWorld serverWorld = (ServerWorld) this.world;
+        if(!getWorld().isClient() && this.getTarget() != null) {
+            ServerWorld serverWorld = (ServerWorld) this.getWorld();
 
             double particleX = this.bodySegments[1].getParticleX(0.33)+(-0.75 + (0.75  - (-0.75 )) * this.getRandom().nextDouble());
             double particleY = this.bodySegments[1].getY()+(-0.75  + (0.75  - (-0.75 )) * this.getRandom().nextDouble());
@@ -264,8 +263,8 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
                 MathHelper.floor(box.maxY),
                 MathHelper.floor(box.maxZ)
         )) {
-            BlockState blockState = this.world.getBlockState(blockPos);
-            if (blockState.getMaterial().equals(Material.METAL)) {
+            BlockState blockState = this.getWorld().getBlockState(blockPos);
+            if (blockState.getBlock().equals(Blocks.LIGHTNING_ROD)) {
                 this.pulse(false, false,8);
                 break;
             }
@@ -273,13 +272,17 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
     }
 
+//    public boolean collides() {
+//        return false;
+//    }
+
     public boolean damage(DamageSource source, float amount) {
 
         if(source.getAttacker() != null){
-            source.getAttacker().damage(DamageSource.LIGHTNING_BOLT, 3.0F);
+            source.getAttacker().damage(this.getDamageSources().lightningBolt(), 3.0F);
             this.pulse(true, true, 5);
-            if(world.isClient()){
-                world.playSound(this.getX(),
+            if(getWorld().isClient()){
+                getWorld().playSound(this.getX(),
                         this.getY(),
                         this.getZ(),
                         SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT,
@@ -295,21 +298,21 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     private void pulse(boolean damaging, boolean seizure_inducing, int radius) {
         if(pulseCooldown <= 0) {
             Box pulseBox = this.getBoundingBox().expand(radius);
-            List<Entity> collidedEntities = this.world.getOtherEntities(this, pulseBox, entity -> entity.isAlive() && (entity instanceof LivingEntity) && !entity.getType().equals(ElectricEel.ELECTRIC_EEL_ENTITY)
+            List<Entity> collidedEntities = this.getWorld().getOtherEntities(this, pulseBox, entity -> entity.isAlive() && (entity instanceof LivingEntity) && !entity.getType().equals(ElectricEel.ELECTRIC_EEL_ENTITY)
             && !entity.isSpectator());
             if(damaging) {
                 for(Entity entity : collidedEntities){
                     LivingEntity livingEntity = (LivingEntity) entity;
 
-                    entity.damage(DamageSource.LIGHTNING_BOLT,pulseCharge/3);
+                    entity.damage(this.getDamageSources().lightningBolt(),pulseCharge/3);
                     if(seizure_inducing && entity instanceof WaterCreatureEntity) {
                         livingEntity.addStatusEffect(new StatusEffectInstance(ElectricEel.SHOCK_STATUS_EFFECT,200));
                         livingEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS,200, 4));
                     }
 
 
-                    if(!world.isClient()) {
-                        ServerWorld serverWorld = (ServerWorld) this.world;
+                    if(!getWorld().isClient()) {
+                        ServerWorld serverWorld = (ServerWorld) this.getWorld();
                         Vec3d startPos = new Vec3d(this.getX(),this.getY(),this.getZ());
                         Vec3d endPos = new Vec3d(livingEntity.getX(),livingEntity.getY(),livingEntity.getZ());
 
@@ -329,12 +332,12 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
                     MathHelper.floor(pulseBox.maxY),
                     MathHelper.floor(pulseBox.maxZ)
             )) {
-                BlockState blockState = this.world.getBlockState(blockPos);
+                BlockState blockState = this.getWorld().getBlockState(blockPos);
                 if(blockState.isOf(Blocks.LIGHTNING_ROD)){
                     EelPowered lightningRodBlock = (EelPowered) blockState.getBlock();
-                    lightningRodBlock.setEelPowered(blockState, world,blockPos,this.pulseCharge);
-                    if(!world.isClient()) {
-                        ServerWorld serverWorld = (ServerWorld) this.world;
+                    lightningRodBlock.setEelPowered(blockState, getWorld(),blockPos,this.pulseCharge);
+                    if(!getWorld().isClient()) {
+                        ServerWorld serverWorld = (ServerWorld) this.getWorld();
                         Vec3d startPos = new Vec3d(this.getX(),this.getY(),this.getZ());
                         Vec3d endPos = new Vec3d(blockPos.getX(),blockPos.getY(),blockPos.getZ());
                         generateBolt(startPos,endPos,5,2,serverWorld);
@@ -376,6 +379,19 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             electricEelParts[i].setId(i + packet.getId() + 1);
         }
     }
+
+//    public boolean collides() {
+//        return false;
+//    }
+//
+//    public boolean isPushable() {
+//        return false;
+//    }
+//
+//    public boolean collidesWith(Entity other) {
+//        return false;
+//    }
+
 
 
 

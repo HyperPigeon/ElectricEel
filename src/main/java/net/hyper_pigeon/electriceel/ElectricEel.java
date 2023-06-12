@@ -56,7 +56,7 @@ public class ElectricEel implements ModInitializer {
         FabricDefaultAttributeRegistry.register(ELECTRIC_EEL_ENTITY, ElectricEelEntity.createElectricEelAttributes().build());
         StateRefresher.INSTANCE.addBlockProperty(Blocks.LIGHTNING_ROD,EEL_POWER,0);
 
-        SpawnRestriction.register(ELECTRIC_EEL_ENTITY, SpawnRestriction.Location.IN_WATER, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, WaterCreatureEntity::m_rlvqolvj);
+        SpawnRestriction.register(ELECTRIC_EEL_ENTITY, SpawnRestriction.Location.IN_WATER, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, WaterCreatureEntity::canSpawn);
         BiomeModifications.addSpawn(BiomeSelectors.isIn(ELECTRIC_EEL_SPAWN_BIOMES),SpawnGroup.CREATURE, ELECTRIC_EEL_ENTITY,
                 1, 1,1);
 

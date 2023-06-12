@@ -23,7 +23,7 @@ public class EelSwimGoal extends SwimAroundGoal {
         @Nullable
     protected Vec3d getWanderTarget() {
         if(electricEelEntity.getHungerCooldown() <= 0) {
-            List<ItemEntity> list = this.electricEelEntity.world.getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH));
+            List<ItemEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH));
             Optional<ItemEntity> optional = list.stream()
                     .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
                     .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))

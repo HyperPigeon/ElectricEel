@@ -161,17 +161,6 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         return ImmutableList.of(this.body.getModelPart());
     }
 
-    private float lerpAngleDegrees(float start, float end) {
-        return this.lerpAngleDegrees(0.05f, start, end);
-    }
-
-    private float lerpAngleDegrees(float delta, float start, float end, float limit) {
-        if(delta*end > limit){
-            return start + limit*Math.signum(end-start);
-        }
-        return MathHelper.lerpAngleDegrees(delta, start, end);
-    }
-
 
     private float lerpAngleDegrees(float delta, float start, float end) {
         return MathHelper.lerpAngleDegrees(delta, start, end);
@@ -190,6 +179,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         this.head.currentPitch = headPitch * ((float) Math.PI / 180);
         this.head.getModelPart().pitch = this.head.currentPitch;
 
+
         if(entity.isFeeding()){
             this.head.getModelPart().getChild("jaw").pitch = 70 * ((float)Math.PI / 180);
         }
@@ -204,7 +194,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
             bodyParts.get(i).getModelPart().pitch = bodyParts.get(i).currentPitch;
 
             float yawDelta = 0.25f;
-            bodyParts.get(i).getModelPart().yaw = -MathHelper.fwrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
+            bodyParts.get(i).getModelPart().yaw = -MathHelper.wrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
             previousPart = bodyParts.get(i);
         }
     }
@@ -213,8 +203,6 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         private ModelPart modelPart;
         public float previousPitch = 0;
         public float currentPitch = 0;
-        public float previousYaw = 0;
-        public float currentYaw = 0;
 
         public ElectricEelModelPart(ModelPart modelPart){
             this.modelPart = modelPart;
