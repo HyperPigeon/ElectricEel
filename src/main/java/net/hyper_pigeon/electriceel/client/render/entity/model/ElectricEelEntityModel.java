@@ -187,6 +187,12 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
             this.head.getModelPart().getChild("jaw").pitch = 0;
         }
 
+        if(entity.getVelocity().horizontalLengthSquared() > 1.0E-7) {
+            this.segment1.getModelPart().getChild("pectoralFin1").yaw = (float) ((0.1618)*MathHelper.cos((float) (animationProgress*0.3))+0.2618 +0.1)/2;
+            this.segment1.getModelPart().getChild("pectoralFin2").yaw = (float) ((-0.1618)*MathHelper.cos((float) (animationProgress*0.3))-0.2618-0.1)/2;
+        }
+
+
         ElectricEelModelPart previousPart = this.head;
         for(int i = 0; i < bodyParts.size(); i++){
 
