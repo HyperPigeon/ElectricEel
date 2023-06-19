@@ -38,7 +38,7 @@ public class ElectricEel implements ModInitializer {
 
     public static final EntityType<ElectricEelEntity> ELECTRIC_EEL_ENTITY = Registry.register(
             Registries.ENTITY_TYPE, new Identifier("electric_eel", "electric_eel"),
-            QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(0.5F, 0.5F)).allowSpawningInside(Blocks.WATER).build()
+            QuiltEntityTypeBuilder.create(SpawnGroup.WATER_CREATURE, ElectricEelEntity::new).setDimensions(EntityDimensions.changing(0.66F, 0.5F)).allowSpawningInside(Blocks.WATER).build()
     );
 
     public static final ShockStatusEffect SHOCK_STATUS_EFFECT = Registry.register(Registries.STATUS_EFFECT, new Identifier("electric_eel","shock"),new ShockStatusEffect(StatusEffectType.HARMFUL,11141120));

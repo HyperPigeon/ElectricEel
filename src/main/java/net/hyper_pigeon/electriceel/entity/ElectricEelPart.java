@@ -59,17 +59,17 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity>  {
 
 
 
-    public boolean isPushable() {
-        return true;
-    }
-
-    public boolean collidesWith(Entity other) {
-        return other.isCollidable() && !this.isConnectedThroughVehicle(other) && !(other instanceof ElectricEelPart);
-    }
-
-    public boolean isCollidable() {
-        return true;
-    }
+//    public boolean isPushable() {
+//        return true;
+//    }
+//
+//    public boolean collidesWith(Entity other) {
+//        return other.isCollidable() && !this.isConnectedThroughVehicle(other) && !(other instanceof ElectricEelPart);
+//    }
+//
+//    public boolean isCollidable() {
+//        return true;
+//    }
 
 
 

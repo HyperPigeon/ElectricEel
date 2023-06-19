@@ -3,6 +3,7 @@ package net.hyper_pigeon.electriceel.entity;
 import net.hyper_pigeon.electriceel.ElectricEel;
 import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishEntityGoal;
 import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishItemGoal;
+import net.hyper_pigeon.electriceel.entity.ai.navigation.EelNavigation;
 import net.hyper_pigeon.electriceel.interfaces.EelPowered;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -69,12 +70,12 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
     public ElectricEelEntity(EntityType<? extends WaterCreatureEntity> entityType, World world) {
         super(entityType, world);
-        this.navigation = new AmphibiousNavigation(this, world);
-        this.moveControl = new AquaticMoveControl(this, 60, 10, 0.1f, 0.3f, true);
+        this.navigation = new EelNavigation(this, world);
+        this.moveControl = new AquaticMoveControl(this, 85, 10, 0.15f, 0.25f, true);
         this.lookControl = new AquaticLookControl(this,20);
 
         for(int i = 0; i < 8; i++){
-            bodySegments[i] = new ElectricEelPart(this,0.33F,0.33F, i);
+            bodySegments[i] = new ElectricEelPart(this,0.4F,0.4F, i);
             bodySegments[i].setInvisible(false);
             bodySegments[i].refreshPositionAndAngles(getX(),getY(),getZ()-i*0.15,getYaw(),getPitch());
         }
@@ -272,9 +273,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
 
     }
 
-//    public boolean collides() {
-//        return false;
-//    }
 
     public boolean damage(DamageSource source, float amount) {
 
@@ -379,18 +377,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             electricEelParts[i].setId(i + packet.getId() + 1);
         }
     }
-
-//    public boolean collides() {
-//        return false;
-//    }
-//
-//    public boolean isPushable() {
-//        return false;
-//    }
-//
-//    public boolean collidesWith(Entity other) {
-//        return false;
-//    }
 
 
 

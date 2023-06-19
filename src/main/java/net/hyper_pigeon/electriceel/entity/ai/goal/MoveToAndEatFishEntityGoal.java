@@ -28,8 +28,6 @@ public class MoveToAndEatFishEntityGoal extends Goal {
         this.electricEelEntity = electricEelEntity;
     }
 
-
-
     @Override
     public boolean canStart() {
         if (electricEelEntity.getHungerCooldown() <= 0) {
@@ -86,8 +84,6 @@ public class MoveToAndEatFishEntityGoal extends Goal {
 
 
             electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
-
-
 
 
             if (electricEelEntity.getBoundingBox().expand(0.1).intersects(targetFishEntity.getBoundingBox())) {

@@ -42,6 +42,7 @@ public class MoveToAndEatFishItemGoal extends Goal {
                 .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
                 .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))
                 .filter(itemEntity -> itemEntity.isTouchingWater())
+                .filter(itemEntity -> itemEntity.isInsideWall())
                 .filter(electricEelEntity::canSee)
                 .findFirst();
 
