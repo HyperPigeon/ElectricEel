@@ -28,12 +28,10 @@ public class MoveToAndEatFishEntityGoal extends Goal {
         this.electricEelEntity = electricEelEntity;
     }
 
-
-
     @Override
     public boolean canStart() {
         if (electricEelEntity.getHungerCooldown() <= 0) {
-            List<FishEntity> list = this.electricEelEntity.world.getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS));
+            List<FishEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS));
             Optional<FishEntity> optional = list.stream()
                     .filter(fishEntity -> fishEntity.isInRange(electricEelEntity, 10.0))
                     .filter(fishEntity -> fishEntity.isTouchingWater())
@@ -47,7 +45,7 @@ public class MoveToAndEatFishEntityGoal extends Goal {
     }
 
     public void start(){
-        List<FishEntity> list = this.electricEelEntity.world.getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS));
+        List<FishEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS));
         Optional<FishEntity> optional = list.stream()
                 .filter(fishEntity -> fishEntity.isInRange(electricEelEntity, 10.0))
                 .filter(fishEntity -> fishEntity.isTouchingWater())
@@ -73,21 +71,19 @@ public class MoveToAndEatFishEntityGoal extends Goal {
             if(targetFishEntity.getY() > electricEelEntity.getY()){
                 path =  electricEelEntity.getNavigation().
                         findPathTo
-                                (new BlockPos(targetFishEntity.getX(),
-                                        targetFishEntity.getY()+2,
-                                        targetFishEntity.getZ()),1);
+                                (new BlockPos((int)targetFishEntity.getX(),
+                                        (int)targetFishEntity.getY()+2,
+                                        (int)targetFishEntity.getZ()),1);
             } else {
                 path =  electricEelEntity.getNavigation().
                         findPathTo
-                                (new BlockPos(targetFishEntity.getX(),
-                                        targetFishEntity.getY()-2,
-                                        targetFishEntity.getZ()),1);
+                                (new BlockPos((int)targetFishEntity.getX(),
+                                        (int)targetFishEntity.getY()-2,
+                                        (int)targetFishEntity.getZ()),1);
             }
 
 
             electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
-
-
 
 
             if (electricEelEntity.getBoundingBox().expand(0.1).intersects(targetFishEntity.getBoundingBox())) {

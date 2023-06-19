@@ -34,9 +34,10 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity>  {
         double targetY = Math.sin(pitch);
 
 
+        //pitch = this.isInsideWall() ? (float) Math.asin(targetY + 2.0F) : pitch;
+        //targetY = this.isInsideWall() ? targetY + 2.0F : targetY;
         //double groundY = this.isInsideWall() ? followY + 2.0F : followY;
         //targetY = (groundY - followY);
-        //targetY = targetY;
 
         Vec3d diff = new Vec3d(this.getX() - followX, this.getY() - followY, this.getZ() - followZ);
         diff = diff.normalize();
@@ -49,15 +50,26 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity>  {
         double destY = followY + f * diff.getY();
         double destZ = followZ + f * diff.getZ();
 
-//        this.setPos(destX, destY, destZ);
-//        this.rotate(-(float) (Math.atan2(diff.getY(), diff.length()) * 180.0D / Math.PI),(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F, true);
-//        this.resetPosition();
-//        this.refreshPosition();
 
         //this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F,  -(float) (Math.atan2(diff.getY(), diff.length()) * 180.0D / Math.PI));
         this.refreshPositionAndAngles(destX,destY,destZ,(float)(Math.atan2(diff.getZ(), diff.getX()) * 180.0F / Math.PI) + 90.0F, (float) ((pitch*180F)/Math.PI));
 
+
     }
+
+
+
+//    public boolean isPushable() {
+//        return true;
+//    }
+//
+//    public boolean collidesWith(Entity other) {
+//        return other.isCollidable() && !this.isConnectedThroughVehicle(other) && !(other instanceof ElectricEelPart);
+//    }
+//
+//    public boolean isCollidable() {
+//        return true;
+//    }
 
 
 
