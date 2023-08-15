@@ -1,10 +1,15 @@
 package net.hyper_pigeon.electriceel.entity.ai.goal;
 
 import net.hyper_pigeon.electriceel.entity.ElectricEelEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
@@ -22,37 +27,34 @@ public class MoveToAndEatFishItemGoal extends Goal {
     @Override
     public boolean canStart() {
         if(electricEelEntity.getHungerCooldown() <= 0) {
-            List<ItemEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH) || itemEntity.getStack().getItem().equals(Items.GLOW_INK_SAC));
+            List<ItemEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0),
+                    itemEntity -> electricEelEntity.canPickupItem(itemEntity.getStack()));
             Optional<ItemEntity> optional = list.stream()
-                    .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
-                    .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))
                     .filter(itemEntity -> itemEntity.isTouchingWater())
                     .filter(electricEelEntity::canSee)
                     .findFirst();
             if(!optional.isEmpty()) {
+                this.targetFishItemEntity = optional.get();
                 return true;
             }
         }
         return false;
     }
 
-    public void start(){
-        List<ItemEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0), itemEntity -> itemEntity.getStack().getItem().equals(Items.COD) || itemEntity.getStack().getItem().equals(Items.SALMON) || itemEntity.getStack().getItem().equals(Items.TROPICAL_FISH) || itemEntity.getStack().getItem().equals((Items.GLOW_INK_SAC)));
-        Optional<ItemEntity> optional = list.stream()
-                .filter(itemEntity -> electricEelEntity.canGather(itemEntity.getStack()))
-                .filter(itemEntity -> itemEntity.isInRange(electricEelEntity, 32.0))
-                .filter(itemEntity -> itemEntity.isTouchingWater())
-                .filter(itemEntity -> itemEntity.isInsideWall())
-                .filter(electricEelEntity::canSee)
-                .findFirst();
 
-        if(!optional.isEmpty()) {
-            this.targetFishItemEntity = optional.get();
+    public void start(){
+        if(targetFishItemEntity != null) {
             electricEelEntity.setFeeding(true);
             electricEelEntity.getNavigation().startMovingTo(targetFishItemEntity,1.2F);
         }
-
     }
+
+    @Override
+    public boolean shouldContinue() {
+        return targetFishItemEntity != null && !targetFishItemEntity.isRemoved() && targetFishItemEntity.isTouchingWater()
+                && electricEelEntity.canSee(targetFishItemEntity);
+    }
+
 
     public void stop() {
         electricEelEntity.setFeeding(false);
@@ -62,6 +64,7 @@ public class MoveToAndEatFishItemGoal extends Goal {
     public void tick() {
         if (targetFishItemEntity != null) {
             electricEelEntity.getLookControl().lookAt(targetFishItemEntity);
+
             Path path;
             if(targetFishItemEntity.getY() > electricEelEntity.getY()){
                 path =  electricEelEntity.getNavigation().

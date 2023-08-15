@@ -21,7 +21,8 @@ import java.util.Queue;
 public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalModel<ElectricEelEntity> {
 
     @Nullable
-    //private final ModelPart root;
+    private final ElectricEelModelPart head;
+    private final ElectricEelModelPart jaw;
     private final ElectricEelModelPart body;
     private final ElectricEelModelPart segment1;
     private final ElectricEelModelPart pectoralFin1;
@@ -30,13 +31,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
     private final ElectricEelModelPart segment3;
     private final ElectricEelModelPart segment4;
     private final ElectricEelModelPart segment5;
-    private final ElectricEelModelPart segment6;
-    private final ElectricEelModelPart segment7;
-    private final ElectricEelModelPart segment8;
-//    private final ElectricEelModelPart segment9;
-//    private final ElectricEelModelPart segment10;
-    private final ElectricEelModelPart head;
-    private final ElectricEelModelPart jaw;
+    private final ElectricEelModelPart segment6;;
 
     private final List<ElectricEelModelPart> bodyParts;
     private ElectricEelEntity electricEelEntity;
@@ -57,11 +52,8 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         this.segment4 =  new ElectricEelModelPart(body.getModelPart().getChild("segment4"));
         this.segment5 =  new ElectricEelModelPart(body.getModelPart().getChild("segment5"));
         this.segment6 =  new ElectricEelModelPart(body.getModelPart().getChild("segment6"));
-        this.segment7 =  new ElectricEelModelPart(body.getModelPart().getChild("segment7"));
-        this.segment8 =  new ElectricEelModelPart(body.getModelPart().getChild("segment8"));
-//        this.segment9 =  new ElectricEelModelPart(body.getModelPart().getChild("segment9"));
-//        this.segment10 =  new ElectricEelModelPart(body.getModelPart().getChild("segment10"));
-        this.bodyParts = ImmutableList.of(segment1,segment2,segment3,segment4,segment5,segment6,segment7,segment8);
+
+        this.bodyParts = ImmutableList.of(segment1,segment2,segment3,segment4,segment5,segment6);
     }
 
     public static TexturedModelData getTexturedModelData() {
@@ -78,71 +70,25 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
 
         ModelPartData pectoralFin2 = segment1.addChild("pectoralFin2", ModelPartBuilder.create().uv(22, 0).cuboid(-1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 7.0F, 1.0F, 0.0F, -0.2618F, 0.0F));
 
-        ModelPartData pectoralFin1 = segment1.addChild("pectoralFin1", ModelPartBuilder.create().uv(46, 12).cuboid(1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 7.0F, 1.0F, 0.0F, 0.2618F, 0.0F));
+        ModelPartData pectoralFin1  = segment1.addChild("pectoralFin1", ModelPartBuilder.create().uv(46, 12).cuboid(1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 7.0F, 1.0F, 0.0F, 0.2618F, 0.0F));
 
         ModelPartData segment2 = body.addChild("segment2", ModelPartBuilder.create().uv(0, 11).cuboid(-2.0F, -3.0F, 6.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
                 .uv(46, 32).cuboid(-0.5F, 2.0F, 6.0F, 1.0F, 3.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment3 = body.addChild("segment3", ModelPartBuilder.create().uv(0, 0).cuboid(-2.0F, -3.0F, 11.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(32, 38).cuboid(-0.5F, 2.0F, 11.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment3 = body.addChild("segment3", ModelPartBuilder.create().uv(26, 21).cuboid(-1.5F, -3.0F, 12.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(42, 2).cuboid(-0.5F, 2.0F, 12.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment4 = body.addChild("segment4", ModelPartBuilder.create().uv(26, 21).cuboid(-1.5F, -3.0F, 16.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(42, 2).cuboid(-0.5F, 2.0F, 16.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment4 = body.addChild("segment4", ModelPartBuilder.create().uv(0, 22).cuboid(-1.5F, -3.0F, 17.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(40, 42).cuboid(-0.5F, 2.0F, 17.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment5 = body.addChild("segment5", ModelPartBuilder.create().uv(0, 22).cuboid(-1.5F, -3.0F, 21.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(40, 42).cuboid(-0.5F, 2.0F, 21.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment5 = body.addChild("segment5", ModelPartBuilder.create().uv(22, 32).cuboid(-1.0F, -3.0F, 23.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(19, 43).cuboid(-0.5F, 2.0F, 23.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
-        ModelPartData segment6 = body.addChild("segment6", ModelPartBuilder.create().uv(14, 16).cuboid(-1.5F, -3.0F, 26.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(0, 43).cuboid(-0.5F, 2.0F, 26.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-
-        ModelPartData segment7 = body.addChild("segment7", ModelPartBuilder.create().uv(22, 32).cuboid(-1.0F, -3.0F, 31.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(19, 43).cuboid(-0.5F, 2.0F, 31.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-
-        ModelPartData segment8 = body.addChild("segment8", ModelPartBuilder.create().uv(38, 15).cuboid(-0.5F, -3.0F, 36.0F, 1.0F, 5.0F, 6.0F, new Dilation(0.0F))
-                .uv(0, 0).cuboid(-0.5F, -1.0F, 42.0F, 1.0F, 3.0F, 2.0F, new Dilation(0.0F))
-                .uv(9, 38).cuboid(-0.5F, 2.0F, 37.0F, 1.0F, 2.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+        ModelPartData segment6 = body.addChild("segment6", ModelPartBuilder.create().uv(38, 15).cuboid(-0.5F, -3.0F, 28.0F, 1.0F, 5.0F, 6.0F, new Dilation(0.0F))
+                .uv(0, 0).cuboid(-0.5F, -1.0F, 34.0F, 1.0F, 3.0F, 2.0F, new Dilation(0.0F))
+                .uv(9, 38).cuboid(-0.5F, 2.0F, 29.0F, 1.0F, 2.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
         return TexturedModelData.of(modelData, 64, 64);
-//        ModelData modelData = new ModelData();
-//        ModelPartData modelPartData = modelData.getRoot();
-//        ModelPartData head = modelPartData.addChild("head", ModelPartBuilder.create().uv(28, 0).cuboid(-2.5F, -2.5F, -4.0F, 5.0F, 3.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.5F, 18.0F, -2.0F));
-//
-//        ModelPartData jaw = head.addChild("jaw", ModelPartBuilder.create().uv(32, 32).cuboid(-2.5F, -0.5F, -4.0F, 5.0F, 1.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 1.0F, 0.0F));
-//
-//        ModelPartData body = modelPartData.addChild("body", ModelPartBuilder.create(), ModelTransform.pivot(0.5F, 18.0F, -2.0F));
-//
-//        ModelPartData segment1 = body.addChild("segment1", ModelPartBuilder.create().uv(14, 5).cuboid(-2.0F, -3.0F, 1.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(14, 0).cuboid(-0.5F, 2.0F, 4.0F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//        ModelPartData pectoralFin2 = segment1.addChild("pectoralFin2", ModelPartBuilder.create().uv(22, 0).cuboid(-1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 7.0F, 1.0F, 0.0F, -0.2618F, 0.0F));
-//        ModelPartData pectoralFin1 = segment1.addChild("pectoralFin1", ModelPartBuilder.create().uv(46, 12).cuboid(1.9F, -8.0F, 1.7F, 1.0F, 2.0F, 3.0F, new Dilation(0.0F)), ModelTransform.of(-0.5F, 7.0F, 1.0F, 0.0F, 0.2618F, 0.0F));
-//
-//        ModelPartData segment2 = body.addChild("segment2", ModelPartBuilder.create().uv(0, 11).cuboid(-2.0F, -3.0F, 6.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(46, 32).cuboid(-0.5F, 2.0F, 6.0F, 1.0F, 3.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment3 = body.addChild("segment3", ModelPartBuilder.create().uv(0, 0).cuboid(-2.0F, -3.0F, 11.0F, 4.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(32, 38).cuboid(-0.5F, 2.0F, 11.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment4 = body.addChild("segment4", ModelPartBuilder.create().uv(26, 21).cuboid(-1.5F, -3.0F, 16.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(42, 2).cuboid(-0.5F, 2.0F, 16.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment5 = body.addChild("segment5", ModelPartBuilder.create().uv(0, 22).cuboid(-1.5F, -3.0F, 21.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(40, 42).cuboid(-0.5F, 2.0F, 21.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment6 = body.addChild("segment6", ModelPartBuilder.create().uv(14, 16).cuboid(-1.5F, -3.0F, 26.0F, 3.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(0, 43).cuboid(-0.5F, 2.0F, 26.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment7 = body.addChild("segment7", ModelPartBuilder.create().uv(22, 32).cuboid(-1.0F, -3.0F, 31.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(19, 43).cuboid(-0.5F, 2.0F, 31.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment8 = body.addChild("segment8", ModelPartBuilder.create().uv(12, 27).cuboid(-1.0F, -3.0F, 36.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(46, 20).cuboid(-0.5F, 2.0F, 36.0F, 1.0F, 4.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment9 = body.addChild("segment9", ModelPartBuilder.create().uv(28, 10).cuboid(-1.0F, -3.0F, 41.0F, 2.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(0, 33).cuboid(-0.5F, 2.0F, 41.0F, 1.0F, 3.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//
-//        ModelPartData segment10 = body.addChild("segment10", ModelPartBuilder.create().uv(38, 15).cuboid(-0.5F, -3.0F, 46.0F, 1.0F, 5.0F, 6.0F, new Dilation(0.0F))
-//                .uv(0, 0).cuboid(-0.5F, -1.0F, 52.0F, 1.0F, 3.0F, 2.0F, new Dilation(0.0F))
-//                .uv(9, 38).cuboid(-0.5F, 2.0F, 47.0F, 1.0F, 2.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
-//        return TexturedModelData.of(modelData, 64, 64);
+
     }
 
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
@@ -196,14 +142,14 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
         ElectricEelModelPart previousPart = this.head;
         for(int i = 0; i < bodyParts.size(); i++){
 
-            float pitchDelta = 0.10f;
+            float pitchDelta = 0.05f;
             bodyParts.get(i).previousPitch = bodyParts.get(i).currentPitch;
             bodyParts.get(i).currentPitch = this.lerpAngleDegrees(pitchDelta,bodyParts.get(i).previousPitch,previousPart.previousPitch);
             bodyParts.get(i).getModelPart().pitch = bodyParts.get(i).currentPitch;
 
             //bodyParts.get(i).getModelPart().pitch = this.lerpAngleDegrees(pitchDelta,bodyParts.get(i).getModelPart().pitch,previousPart.getModelPart().pitch);
             
-            float yawDelta = 0.25F;
+            float yawDelta = 0.20F;
             bodyParts.get(i).getModelPart().yaw = -MathHelper.wrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
 
 

@@ -38,6 +38,7 @@ public class MoveToAndEatFishEntityGoal extends Goal {
                     .filter(electricEelEntity::canSee)
                     .findFirst();
             if(!optional.isEmpty()) {
+                this.targetFishEntity = optional.get();
                 return true;
             }
         }
@@ -45,27 +46,37 @@ public class MoveToAndEatFishEntityGoal extends Goal {
     }
 
     public void start(){
-        List<FishEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS));
-        Optional<FishEntity> optional = list.stream()
-                .filter(fishEntity -> fishEntity.isInRange(electricEelEntity, 10.0))
-                .filter(fishEntity -> fishEntity.isTouchingWater())
-                .filter(electricEelEntity::canSee)
-                .findFirst();
-        if(!optional.isEmpty()) {
-            targetFishEntity = optional.get();
+        if(targetFishEntity != null) {
             electricEelEntity.setFeeding(true);
             electricEelEntity.getNavigation().startMovingTo(targetFishEntity,1.2F);
         }
     }
 
+    public boolean shouldContinue(){
+        return this.targetFishEntity != null;
+    }
+
     public void stop(){
-        electricEelEntity.setEatingTicks(25);
+        electricEelEntity.setFeeding(false);
         targetFishEntity = null;
     }
 
     public void tick() {
         if (targetFishEntity != null) {
             electricEelEntity.getLookControl().lookAt(targetFishEntity);
+
+            if (electricEelEntity.getBoundingBox().expand(0.1).intersects(targetFishEntity.getBoundingBox())) {
+                ServerWorld serverWorld = (ServerWorld) electricEelEntity.getWorld();
+
+                serverWorld.playSoundFromEntity(null, electricEelEntity, SoundEvents.ITEM_HONEY_BOTTLE_DRINK, SoundCategory.NEUTRAL, 2.0F, 1.0F);
+                electricEelEntity.setHungerCooldown(1200);
+                electricEelEntity.setEatingTicks(25);
+
+                ItemStack stack = getTargetItemStack();
+                electricEelEntity.setLastConsumedItemStack(stack);
+                targetFishEntity.remove(Entity.RemovalReason.KILLED);
+            }
+
             Path path;
 
             if(targetFishEntity.getY() > electricEelEntity.getY()){
@@ -86,17 +97,7 @@ public class MoveToAndEatFishEntityGoal extends Goal {
             electricEelEntity.getNavigation().startMovingAlong(path,1.2F);
 
 
-            if (electricEelEntity.getBoundingBox().expand(0.1).intersects(targetFishEntity.getBoundingBox())) {
-                ServerWorld serverWorld = (ServerWorld) electricEelEntity.getWorld();
 
-                serverWorld.playSoundFromEntity(null, electricEelEntity, SoundEvents.ITEM_HONEY_BOTTLE_DRINK, SoundCategory.NEUTRAL, 2.0F, 1.0F);
-                electricEelEntity.setHungerCooldown(1200);
-                electricEelEntity.setFeeding(false);
-
-                ItemStack stack = getTargetItemStack();
-                electricEelEntity.setLastConsumedItemStack(stack);
-                targetFishEntity.remove(Entity.RemovalReason.KILLED);
-            }
         }
 
     }
