@@ -54,7 +54,7 @@ import java.util.List;
 public class ElectricEelEntity extends WaterCreatureEntity implements MultipartEntity, RangedAttackMob, Bucketable {
 
 
-    public final ElectricEelPart[] bodySegments = new ElectricEelPart[8];
+    public final ElectricEelPart[] bodySegments = new ElectricEelPart[6];
 
     private int pulseCharge = 3;
     private int hungerCooldown = 0;
@@ -71,10 +71,10 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     public ElectricEelEntity(EntityType<? extends WaterCreatureEntity> entityType, World world) {
         super(entityType, world);
         this.navigation = new AmphibiousNavigation(this, world);
-        this.moveControl = new AquaticMoveControl(this, 85, 10, 0.15f, 0.25f, true);
+        this.moveControl = new AquaticMoveControl(this, 65, 10, 0.15f, 0.25f, true);
         this.lookControl = new AquaticLookControl(this,20);
 
-        for(int i = 0; i < 8; i++){
+        for(int i = 0; i < bodySegments.length; i++){
             bodySegments[i] = new ElectricEelPart(this,0.4F,0.4F, i);
             bodySegments[i].setInvisible(false);
             bodySegments[i].refreshPositionAndAngles(getX(),getY(),getZ()-i*0.15,getYaw(),getPitch());
@@ -95,11 +95,11 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         super.initGoals();
 
         this.goalSelector.add(0, new MoveIntoWaterGoal(this));
-        this.goalSelector.add(0, new BreatheAirGoal(this));
-        this.goalSelector.add(1, new MoveToAndEatFishItemGoal(this));
-        this.goalSelector.add(1,new MoveToAndEatFishEntityGoal(this));
-        this.goalSelector.add(2, new ElectricEelEntity.PulseAttackGoal(this, 1.5F, 60,8));
-        this.goalSelector.add(3, new SwimAroundGoal(this, 1.0, 10));
+        this.goalSelector.add(1, new BreatheAirGoal(this));
+        this.goalSelector.add(2, new MoveToAndEatFishItemGoal(this));
+        this.goalSelector.add(2,new MoveToAndEatFishEntityGoal(this));
+        this.goalSelector.add(3, new ElectricEelEntity.PulseAttackGoal(this, 1.5F, 60,8));
+        this.goalSelector.add(4, new SwimAroundGoal(this, 1.0, 10));
 
         this.targetSelector.add(1, new TargetGoal<>(this, FishEntity.class, false,  fishEntity -> (fishEntity instanceof FishEntity) && this.getHungerCooldown() <= 0));
     }
@@ -168,8 +168,6 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     }
 
     protected void loot(ItemEntity item) {
-
-
         setLastConsumedItemStack(item.getStack());
 
         ItemStack itemStack = item.getStack();
