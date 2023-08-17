@@ -28,13 +28,13 @@ public class MoveToAndEatFishItemGoal extends Goal {
     public boolean canStart() {
         if(electricEelEntity.getHungerCooldown() <= 0) {
             List<ItemEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0),
-                    itemEntity -> electricEelEntity.canPickupItem(itemEntity.getStack()));
-            Optional<ItemEntity> optional = list.stream()
-                    .filter(itemEntity -> itemEntity.isTouchingWater())
-                    .filter(electricEelEntity::canSee)
-                    .findFirst();
-            if(!optional.isEmpty()) {
-                this.targetFishItemEntity = optional.get();
+                    itemEntity -> electricEelEntity.canPickupItem(itemEntity.getStack()) && itemEntity.isTouchingWater() && electricEelEntity.canSee(itemEntity));
+//            Optional<ItemEntity> optional = list.stream()
+//                    .filter(itemEntity -> itemEntity.isTouchingWater())
+//                    .filter(electricEelEntity::canSee)
+//                    .findFirst();
+            if(!list.isEmpty()) {
+                //this.targetFishItemEntity = optional.get();
                 return true;
             }
         }
@@ -43,17 +43,22 @@ public class MoveToAndEatFishItemGoal extends Goal {
 
 
     public void start(){
-        if(targetFishItemEntity != null) {
+        List<ItemEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(ItemEntity.class, this.electricEelEntity.getBoundingBox().expand(32.0, 16.0, 32.0),
+                itemEntity -> electricEelEntity.canPickupItem(itemEntity.getStack()) && itemEntity.isTouchingWater() && electricEelEntity.canSee(itemEntity));
+        Optional<ItemEntity> optional = list.stream()
+                .findFirst();
+        if(!optional.isEmpty()) {
+            targetFishItemEntity = optional.get();
             electricEelEntity.setFeeding(true);
-            electricEelEntity.getNavigation().startMovingTo(targetFishItemEntity,1.2F);
+            electricEelEntity.getNavigation().startMovingTo(targetFishItemEntity, 1.2F);
         }
     }
 
-    @Override
-    public boolean shouldContinue() {
-        return targetFishItemEntity != null && !targetFishItemEntity.isRemoved() && targetFishItemEntity.isTouchingWater()
-                && electricEelEntity.canSee(targetFishItemEntity);
-    }
+//    @Override
+//    public boolean shouldContinue() {
+//        return targetFishItemEntity != null && !targetFishItemEntity.isRemoved() && targetFishItemEntity.isTouchingWater()
+//                && electricEelEntity.canSee(targetFishItemEntity);
+//    }
 
 
     public void stop() {

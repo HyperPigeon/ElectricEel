@@ -149,7 +149,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
 
             //bodyParts.get(i).getModelPart().pitch = this.lerpAngleDegrees(pitchDelta,bodyParts.get(i).getModelPart().pitch,previousPart.getModelPart().pitch);
             
-            float yawDelta = 0.20F;
+            float yawDelta = 0.175F;
             bodyParts.get(i).getModelPart().yaw = -MathHelper.wrapDegrees(this.lerpAngleDegrees(yawDelta, bodyParts.get(i).getModelPart().yaw,entity.getYaw() - entity.bodySegments[i].getYaw()))*(float)(Math.PI/180);
 
 

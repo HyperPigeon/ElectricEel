@@ -31,14 +31,14 @@ public class MoveToAndEatFishEntityGoal extends Goal {
     @Override
     public boolean canStart() {
         if (electricEelEntity.getHungerCooldown() <= 0) {
-            List<FishEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS));
-            Optional<FishEntity> optional = list.stream()
-                    .filter(fishEntity -> fishEntity.isInRange(electricEelEntity, 10.0))
-                    .filter(fishEntity -> fishEntity.isTouchingWater())
-                    .filter(electricEelEntity::canSee)
-                    .findFirst();
-            if(!optional.isEmpty()) {
-                this.targetFishEntity = optional.get();
+            List<FishEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS) && fishEntity.isSubmergedInWater() && electricEelEntity.canSee(fishEntity));
+//            Optional<FishEntity> optional = list.stream()
+//                    .filter(fishEntity -> fishEntity.isInRange(electricEelEntity, 10.0))
+//                    .filter(fishEntity -> fishEntity.isTouchingWater())
+//                    .filter(electricEelEntity::canSee)
+//                    .findFirst();
+            if(!list.isEmpty()) {
+//                this.targetFishEntity = optional.get();
                 return true;
             }
         }
@@ -46,14 +46,19 @@ public class MoveToAndEatFishEntityGoal extends Goal {
     }
 
     public void start(){
-        if(targetFishEntity != null) {
+        List<FishEntity> list = this.electricEelEntity.getWorld().getEntitiesByClass(FishEntity.class, this.electricEelEntity.getBoundingBox().expand(10.0, 10.0, 10.0), fishEntity -> fishEntity.hasStatusEffect(StatusEffects.SLOWNESS) && fishEntity.isSubmergedInWater() && electricEelEntity.canSee(fishEntity));
+        Optional<FishEntity> optional = list.stream()
+                .findFirst();
+
+        if(!optional.isEmpty()) {
+            this.targetFishEntity = optional.get();
             electricEelEntity.setFeeding(true);
             electricEelEntity.getNavigation().startMovingTo(targetFishEntity,1.2F);
         }
     }
 
     public boolean shouldContinue(){
-        return this.targetFishEntity != null;
+        return this.targetFishEntity != null && this.targetFishEntity.isAlive() && this.targetFishEntity.isSubmergedInWater() && this.electricEelEntity.squaredDistanceTo(targetFishEntity) < 100;
     }
 
     public void stop(){
@@ -65,7 +70,7 @@ public class MoveToAndEatFishEntityGoal extends Goal {
         if (targetFishEntity != null) {
             electricEelEntity.getLookControl().lookAt(targetFishEntity);
 
-            if (electricEelEntity.getBoundingBox().expand(0.1).intersects(targetFishEntity.getBoundingBox())) {
+            if (electricEelEntity.getBoundingBox().expand(0.15).intersects(targetFishEntity.getBoundingBox())) {
                 ServerWorld serverWorld = (ServerWorld) electricEelEntity.getWorld();
 
                 serverWorld.playSoundFromEntity(null, electricEelEntity, SoundEvents.ITEM_HONEY_BOTTLE_DRINK, SoundCategory.NEUTRAL, 2.0F, 1.0F);
