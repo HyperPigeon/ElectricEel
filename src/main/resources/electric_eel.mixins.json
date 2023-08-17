@@ -4,10 +4,8 @@
   "package": "net.hyper_pigeon.electriceel.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "LightningRodBlockMixin"
   ],
   "client": [
-    "LivingEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -3,10 +3,9 @@ package net.hyper_pigeon.electriceel.entity;
 import net.hyper_pigeon.electriceel.ElectricEel;
 import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishEntityGoal;
 import net.hyper_pigeon.electriceel.entity.ai.goal.MoveToAndEatFishItemGoal;
-import net.hyper_pigeon.electriceel.entity.ai.navigation.EelNavigation;
-import net.hyper_pigeon.electriceel.interfaces.EelPowered;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.LightningRodBlock;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.control.AquaticLookControl;
@@ -330,8 +329,10 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
             )) {
                 BlockState blockState = this.getWorld().getBlockState(blockPos);
                 if(blockState.isOf(Blocks.LIGHTNING_ROD)){
-                    EelPowered lightningRodBlock = (EelPowered) blockState.getBlock();
-                    lightningRodBlock.setEelPowered(blockState, getWorld(),blockPos,this.pulseCharge);
+//                    EelPowered lightningRodBlock = (EelPowered) blockState.getBlock();
+//                    lightningRodBlock.setEelPowered(blockState, getWorld(),blockPos,this.pulseCharge);
+                    LightningRodBlock lightningRodBlock = (LightningRodBlock) blockState.getBlock();
+                    lightningRodBlock.setPowered(blockState, getWorld(), blockPos);
                     if(!getWorld().isClient()) {
                         ServerWorld serverWorld = (ServerWorld) this.getWorld();
                         Vec3d startPos = new Vec3d(this.getX(),this.getY(),this.getZ());

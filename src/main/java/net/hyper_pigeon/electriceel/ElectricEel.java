@@ -8,8 +8,6 @@ import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.SpawnRestriction;
-import net.minecraft.entity.ai.brain.sensor.Sensor;
-import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.fluid.Fluids;
@@ -20,8 +18,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
@@ -30,9 +26,6 @@ import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
 import org.quiltmc.qsl.entity.api.QuiltEntityTypeBuilder;
 import org.quiltmc.qsl.worldgen.biome.api.BiomeModifications;
 import org.quiltmc.qsl.worldgen.biome.api.BiomeSelectors;
-import virtuoel.statement.api.StateRefresher;
-
-import java.util.function.Supplier;
 
 public class ElectricEel implements ModInitializer {
 
@@ -46,7 +39,7 @@ public class ElectricEel implements ModInitializer {
     public static final Item EEL_BUCKET = Registry.register(Registries.ITEM, new Identifier("electric_eel","eel_bucket"), new EntityBucketItem(ELECTRIC_EEL_ENTITY, Fluids.WATER,
             SoundEvents.ITEM_BUCKET_EMPTY_FISH, new Item.Settings().maxCount(1)));
 
-    public static final IntProperty EEL_POWER = Properties.POWER;
+//    public static final IntProperty EEL_POWER = Properties.POWER;
 
 
     public static final TagKey<Biome> ELECTRIC_EEL_SPAWN_BIOMES = TagKey.of(RegistryKeys.BIOME, new Identifier("electric_eel", "electric_eel_spawn_biomes"));
@@ -54,7 +47,7 @@ public class ElectricEel implements ModInitializer {
     @Override
     public void onInitialize(ModContainer mod) {
         FabricDefaultAttributeRegistry.register(ELECTRIC_EEL_ENTITY, ElectricEelEntity.createElectricEelAttributes().build());
-        StateRefresher.INSTANCE.addBlockProperty(Blocks.LIGHTNING_ROD,EEL_POWER,0);
+//        StateRefresher.INSTANCE.addBlockProperty(Blocks.LIGHTNING_ROD,EEL_POWER,0);
 
         SpawnRestriction.register(ELECTRIC_EEL_ENTITY, SpawnRestriction.Location.IN_WATER, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, WaterCreatureEntity::canSpawn);
         BiomeModifications.addSpawn(BiomeSelectors.isIn(ELECTRIC_EEL_SPAWN_BIOMES),SpawnGroup.CREATURE, ELECTRIC_EEL_ENTITY,
