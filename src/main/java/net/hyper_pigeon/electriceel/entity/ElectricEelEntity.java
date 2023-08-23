@@ -94,7 +94,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
         super.initGoals();
 
         this.goalSelector.add(0, new MoveIntoWaterGoal(this));
-        this.goalSelector.add(1, new BreatheAirGoal(this));
+        //this.goalSelector.add(1, new BreatheAirGoal(this));
         this.goalSelector.add(2, new MoveToAndEatFishItemGoal(this));
         this.goalSelector.add(2,new MoveToAndEatFishEntityGoal(this));
         this.goalSelector.add(3, new ElectricEelEntity.PulseAttackGoal(this, 1.5F, 60,8));
@@ -140,11 +140,9 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     }
 
     public boolean canBreatheInWater() {
-        return false;
+        return true;
     }
 
-    protected void tickWaterBreathingAir(int air) {
-    }
 
     protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
         return 0.3F;

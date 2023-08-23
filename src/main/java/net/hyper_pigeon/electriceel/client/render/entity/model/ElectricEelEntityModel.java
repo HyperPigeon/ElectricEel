@@ -122,7 +122,7 @@ public class ElectricEelEntityModel<E extends ElectricEelEntity> extends AnimalM
     @Override
     public void setAngles(ElectricEelEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
         this.head.previousPitch = this.head.currentPitch;
-        this.head.currentPitch = headPitch * ((float) Math.PI / 180);
+        this.head.currentPitch = this.lerpAngleDegrees(0.10f,this.head.currentPitch,headPitch * ((float) Math.PI / 180));
         this.head.getModelPart().pitch = this.head.currentPitch;
 
 

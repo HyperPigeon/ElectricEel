@@ -44,7 +44,7 @@ public class ElectricEelPart extends AbstractEntityPart<ElectricEelEntity>  {
 
         diff = diff.add(targetX, targetY, targetZ).normalize();
 
-        double f = 0.3D;
+        double f = 0.25D;
 
         double destX = followX + f * diff.getX();
         double destY = followY + f * diff.getY();
