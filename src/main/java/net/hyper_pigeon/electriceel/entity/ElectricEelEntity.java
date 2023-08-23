@@ -70,7 +70,7 @@ public class ElectricEelEntity extends WaterCreatureEntity implements MultipartE
     public ElectricEelEntity(EntityType<? extends WaterCreatureEntity> entityType, World world) {
         super(entityType, world);
         this.navigation = new AmphibiousNavigation(this, world);
-        this.moveControl = new AquaticMoveControl(this, 65, 10, 0.15f, 0.25f, true);
+        this.moveControl = new AquaticMoveControl(this, 85, 10, 0.15f, 0.25f, true);
         this.lookControl = new AquaticLookControl(this,20);
 
         for(int i = 0; i < bodySegments.length; i++){
